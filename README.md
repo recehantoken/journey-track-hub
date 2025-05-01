@@ -1,73 +1,185 @@
-# Welcome to your Lovable project
+Vehicle Rental System
+A full-stack vehicle rental application for managing rentals of various vehicle types (bus, elf, hi-ace, private car) with real-time GPS tracking, admin dashboard, and user authentication.
+Features
+Vehicle Management
 
-## Project info
+Add, edit, delete vehicles with details:
+Vehicle name
+Vehicle type (bus, elf, hi-ace, private car)
+License plate
+Seat capacity
+Vehicle photo
+Availability status
 
-**URL**: https://lovable.dev/projects/6043367e-834c-4c03-bb0f-984415215e17
 
-## How can I edit this code?
 
-There are several ways of editing your application.
+Driver Management
 
-**Use Lovable**
+Add, edit drivers with details:
+Full name
+Phone number
+Driver photo
+Availability status
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/6043367e-834c-4c03-bb0f-984415215e17) and start prompting.
 
-Changes made via Lovable will be committed automatically to this repo.
 
-**Use your preferred IDE**
+Vehicle Rental
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+Input renter data
+Select available vehicle and driver
+Specify rental date, time, destination, and estimated return time
+Track payment status
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+GPS Tracking (Dummy/Simulation)
 
-Follow these steps:
+Real-time vehicle location display using dummy data
+Map integration with Leaflet or Google Maps
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+Authentication
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+User login and registration via Supabase Auth
 
-# Step 3: Install the necessary dependencies.
-npm i
+Admin Dashboard
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+Statistics on rented vehicles
+Active vehicle schedules
+Rental history
 
-**Edit a file directly in GitHub**
+Notifications & Status
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Vehicle status: available, rented, in service
+Driver status: active, on duty, off
 
-**Use GitHub Codespaces**
+Tech Stack
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Frontend: React, Tailwind CSS, React Router, Axios
+Backend: FastAPI (Python)
+Database & Auth: Supabase
+Map: Leaflet or Google Maps API (optional)
 
-## What technologies are used for this project?
+Database Schema
+Vehicles
+CREATE TABLE vehicles (
+  id UUID PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  type VARCHAR(50) NOT NULL,
+  license_plate VARCHAR(20) UNIQUE NOT NULL,
+  seat_capacity INTEGER NOT NULL,
+  photo_url VARCHAR(255),
+  status VARCHAR(20) NOT NULL, -- available, rented, in_service
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-This project is built with:
+Drivers
+CREATE TABLE drivers (
+  id UUID PRIMARY KEY,
+  full_name VARCHAR(100) NOT NULL,
+  phone_number VARCHAR(20) NOT NULL,
+  photo_url VARCHAR(255),
+  status VARCHAR(20) NOT NULL, -- active, on_duty, off
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+Rentals
+CREATE TABLE rentals (
+  id UUID PRIMARY KEY,
+  renter_name VARCHAR(100) NOT NULL,
+  vehicle_id UUID REFERENCES vehicles(id),
+  driver_id UUID REFERENCES drivers(id),
+  rental_date TIMESTAMP NOT NULL,
+  destination TEXT NOT NULL,
+  estimated_return TIMESTAMP NOT NULL,
+  payment_status VARCHAR(20) NOT NULL, -- pending, paid
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 
-## How can I deploy this project?
+Users (Supabase Auth)
+-- Managed by Supabase Auth
+CREATE TABLE auth.users (
+  id UUID PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  role VARCHAR(20) NOT NULL -- admin, user
+);
 
-Simply open [Lovable](https://lovable.dev/projects/6043367e-834c-4c03-bb0f-984415215e17) and click on Share -> Publish.
+Project Structure
+vehicle-rental-system/
+├── frontend/
+│   ├── src/
+│   │   ├── components/       # Reusable React components
+│   │   ├── pages/            # Page components (Dashboard, Vehicle, Rental)
+│   │   ├── services/         # API calls with Axios
+│   │   ├── App.jsx           # Main app with React Router
+│   │   └── index.css         # Tailwind CSS
+├── backend/
+│   ├── app/
+│   │   ├── api/              # FastAPI route handlers
+│   │   ├── models/           # Pydantic models
+│   │   ├── schemas/          # Database schemas
+│   │   ├── services/         # Business logic
+│   │   └── main.py           # FastAPI entry point
+├── README.md
+└── .env                      # Environment variables (Supabase, API keys)
 
-## Can I connect a custom domain to my Lovable project?
+Setup Instructions
+Prerequisites
 
-Yes, you can!
+Node.js (v18+)
+Python (v3.9+)
+Supabase account
+(Optional) Google Maps API key
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+Installation
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Clone the repository:
+git clone https://github.com/username/vehicle-rental-system.git
+cd vehicle-rental-system
+
+
+Frontend Setup:
+cd frontend
+npm install
+npm start
+
+
+Backend Setup:
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+
+
+Supabase Setup:
+
+Create a Supabase project
+Set up tables as per the schema above
+Add Supabase URL and Key to .env:SUPABASE_URL=your_supabase_url
+SUPABASE_KEY=your_supabase_key
+
+
+
+
+Run the Application:
+
+Frontend runs on http://localhost:3000
+Backend runs on http://localhost:8000
+
+
+
+Usage
+
+Access the admin dashboard to manage vehicles, drivers, and rentals
+Use the rental form to book vehicles
+View real-time vehicle locations on the map
+Monitor statuses and statistics via the dashboard
+
+Contributing
+
+Fork the repository
+Create a feature branch (git checkout -b feature/YourFeature)
+Commit changes (git commit -m 'Add YourFeature')
+Push to the branch (git push origin feature/YourFeature)
+Open a Pull Request
+
+License
+MIT License
