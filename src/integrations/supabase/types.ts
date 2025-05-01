@@ -9,7 +9,201 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      drivers: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          phone_number: string
+          photo_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name: string
+          id?: string
+          phone_number: string
+          photo_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone_number?: string
+          photo_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string | null
+          id: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string | null
+          id: string
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      rentals: {
+        Row: {
+          created_at: string
+          destination: string
+          driver_id: string | null
+          end_date: string
+          id: string
+          payment_status: string
+          renter_name: string
+          renter_phone: string
+          start_date: string
+          updated_at: string
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string
+          destination: string
+          driver_id?: string | null
+          end_date: string
+          id?: string
+          payment_status?: string
+          renter_name: string
+          renter_phone: string
+          start_date: string
+          updated_at?: string
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string
+          destination?: string
+          driver_id?: string | null
+          end_date?: string
+          id?: string
+          payment_status?: string
+          renter_name?: string
+          renter_phone?: string
+          start_date?: string
+          updated_at?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rentals_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rentals_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tracking_history: {
+        Row: {
+          id: string
+          latitude: number
+          longitude: number
+          rental_id: string | null
+          timestamp: string
+          vehicle_id: string
+        }
+        Insert: {
+          id?: string
+          latitude: number
+          longitude: number
+          rental_id?: string | null
+          timestamp?: string
+          vehicle_id: string
+        }
+        Update: {
+          id?: string
+          latitude?: number
+          longitude?: number
+          rental_id?: string | null
+          timestamp?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracking_history_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "rentals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tracking_history_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicles: {
+        Row: {
+          created_at: string
+          current_location_lat: number | null
+          current_location_lng: number | null
+          id: string
+          license_plate: string
+          name: string
+          photo_url: string | null
+          seats: number
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          current_location_lat?: number | null
+          current_location_lng?: number | null
+          id?: string
+          license_plate: string
+          name: string
+          photo_url?: string | null
+          seats: number
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          current_location_lat?: number | null
+          current_location_lng?: number | null
+          id?: string
+          license_plate?: string
+          name?: string
+          photo_url?: string | null
+          seats?: number
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

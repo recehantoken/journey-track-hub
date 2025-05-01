@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   Card, 
@@ -13,36 +14,57 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Car } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const RegisterPage = () => {
-  const [name, setName] = useState('');
+  const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     
     if (password !== confirmPassword) {
-      toast("Registration error", {
-        description: "Passwords do not match",
-        variant: "destructive"
+      toast("Passwords do not match", {
+        description: "Please make sure both passwords are the same."
       });
+      setIsLoading(false);
       return;
     }
     
-    setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      toast("Registration successful", {
-        description: "Your account has been created!",
+    try {
+      // Register the user with Supabase Auth
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          }
+        }
       });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast("Registration successful", {
+        description: "Please check your email to confirm your account.",
+      });
+      
+      // Redirect to login page
+      navigate('/login');
+    } catch (error: any) {
+      toast("Registration failed", {
+        description: error.message || "There was a problem creating your account.",
+      });
+    } finally {
       setIsLoading(false);
-      // Redirect would happen here in a real app
-      window.location.href = '/login';
-    }, 1500);
+    }
   };
 
   return (
@@ -56,18 +78,18 @@ const RegisterPage = () => {
         
         <Card>
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold">JourneyTrack Hub</CardTitle>
-            <CardDescription>Create a new account</CardDescription>
+            <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+            <CardDescription>Enter your details to sign up</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Full Name</Label>
+                <Label htmlFor="fullName">Full Name</Label>
                 <Input 
-                  id="name" 
+                  id="fullName" 
                   placeholder="John Doe" 
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
                   required
                 />
               </div>
@@ -105,7 +127,7 @@ const RegisterPage = () => {
             </CardContent>
             <CardFooter className="flex flex-col">
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Creating Account..." : "Register"}
+                {isLoading ? "Creating account..." : "Create Account"}
               </Button>
               <div className="mt-4 text-center text-sm">
                 Already have an account?{' '}

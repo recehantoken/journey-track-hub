@@ -1,33 +1,87 @@
 
-import { Bell, Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Menu, X, User as UserIcon } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "@/components/ui/sonner";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const Navbar = () => {
+interface NavbarProps {
+  toggle: () => void;
+  isOpen: boolean;
+}
+
+const Navbar = ({ toggle, isOpen }: NavbarProps) => {
+  const { user, signOut } = useAuth();
+  
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast("Signed out", {
+        description: "You have been successfully signed out.",
+      });
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
+
   return (
-    <header className="border-b bg-background">
-      <div className="flex h-16 items-center px-4 md:px-6">
-        <div className="ml-auto flex items-center gap-4">
-          <div className="hidden md:flex relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="w-[200px] pl-8 md:w-[260px] bg-background"
-            />
-          </div>
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
-          </Button>
-          <Avatar>
-            <AvatarImage src="" />
-            <AvatarFallback>AD</AvatarFallback>
-          </Avatar>
+    <div className="sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-2.5 shadow-sm">
+      <div className="flex items-center justify-between">
+        {/* Left side */}
+        <div className="flex items-center">
+          <button
+            className="block lg:hidden mr-2"
+            onClick={toggle}
+            aria-label="Toggle Menu"
+          >
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+          <Link to="/" className="flex items-center">
+            <span className="text-xl font-bold text-navy-800">
+              JourneyTrack
+            </span>
+          </Link>
+        </div>
+
+        {/* Right side */}
+        <div className="flex items-center gap-4">
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="rounded-full">
+                  <UserIcon className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut}>
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="flex gap-2">
+              <Button asChild variant="ghost" size="sm">
+                <Link to="/login">Login</Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link to="/register">Register</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
-    </header>
+    </div>
   );
 };
 

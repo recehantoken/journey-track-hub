@@ -1,5 +1,6 @@
+
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   Card, 
@@ -13,25 +14,41 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Car } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const LoginPage = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
       toast("Login successful", {
         description: "Welcome to JourneyTrack Hub!",
       });
+      
+      // Redirect to dashboard
+      navigate('/');
+    } catch (error: any) {
+      toast("Login failed", {
+        description: error.message || "Please check your credentials and try again.",
+      });
+    } finally {
       setIsLoading(false);
-      // Redirect would happen here in a real app
-      window.location.href = '/';
-    }, 1500);
+    }
   };
 
   return (
