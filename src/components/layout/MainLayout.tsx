@@ -1,5 +1,5 @@
 
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import Sidebar from './Sidebar';
@@ -13,6 +13,9 @@ interface MainLayoutProps {
 const MainLayout = ({ children }: MainLayoutProps) => {
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+  const [isOpen, setIsOpen] = useState(false);
+  
+  const toggle = () => setIsOpen(!isOpen);
 
   if (isAuthPage) {
     return (
@@ -28,7 +31,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       <div className="min-h-screen flex w-full bg-background">
         <Sidebar />
         <div className="flex-1">
-          <Navbar />
+          <Navbar toggle={toggle} isOpen={isOpen} />
           <main className="p-4 md:p-6 max-w-7xl mx-auto">
             {children}
           </main>

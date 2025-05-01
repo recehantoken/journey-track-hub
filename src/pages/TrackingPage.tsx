@@ -15,77 +15,64 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Vehicle } from '@/types';
-import { MapPin, Navigation } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import Map from '@/components/Map';
+import { supabase } from '@/integrations/supabase/client';
 
 const TrackingPage = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [selectedVehicle, setSelectedVehicle] = useState<string | null>(null);
-  const [mapReady, setMapReady] = useState(false);
+  const [loading, setLoading] = useState(true);
 
+  // Fetch vehicles from Supabase
   useEffect(() => {
-    // Mock data - would be replaced with API call
-    const mockVehicles: Vehicle[] = [
-      {
-        id: '1',
-        name: 'Big Traveler',
-        type: 'bus',
-        licensePlate: 'B 1234 ABC',
-        seats: 45,
-        photoUrl: 'https://images.unsplash.com/photo-1469041797191-50ace28483c3',
-        status: 'rented',
-        currentLocation: {
-          lat: -6.2088,
-          lng: 106.8456
+    const fetchVehicles = async () => {
+      setLoading(true);
+      try {
+        const { data: vehiclesData, error } = await supabase
+          .from('vehicles')
+          .select('*')
+          .order('name');
+          
+        if (error) throw error;
+        
+        if (vehiclesData) {
+          setVehicles(vehiclesData as Vehicle[]);
+          // Select first vehicle with status 'rented' by default
+          const rentedVehicle = vehiclesData.find(v => v.status === 'rented');
+          if (rentedVehicle) {
+            setSelectedVehicle(rentedVehicle.id);
+          } else if (vehiclesData.length > 0) {
+            setSelectedVehicle(vehiclesData[0].id);
+          }
         }
-      },
-      {
-        id: '2',
-        name: 'Mini Bus',
-        type: 'elf',
-        licensePlate: 'B 5678 DEF',
-        seats: 20,
-        photoUrl: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a',
-        status: 'rented',
-        currentLocation: {
-          lat: -6.1751,
-          lng: 106.8650
-        }
-      },
-      {
-        id: '3',
-        name: 'City Shuttle',
-        type: 'hi-ace',
-        licensePlate: 'B 9012 GHI',
-        seats: 16,
-        photoUrl: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a',
-        status: 'rented',
-        currentLocation: {
-          lat: -6.2297,
-          lng: 106.8252
-        }
+      } catch (error) {
+        console.error('Error fetching vehicles:', error);
+      } finally {
+        setLoading(false);
       }
-    ];
-    
-    setVehicles(mockVehicles);
-    if (mockVehicles.length > 0) {
-      setSelectedVehicle(mockVehicles[0].id);
-    }
-  }, []);
+    };
 
-  // This is a placeholder for actual map implementation
-  // In a real app, we would use the useEffect hook to initialize the map
-  // and update markers when selectedVehicle changes
-  
-  // Simulating map loading
-  useEffect(() => {
-    const timer = setTimeout(() => setMapReady(true), 1000);
-    return () => clearTimeout(timer);
+    fetchVehicles();
   }, []);
 
   const selectedVehicleData = selectedVehicle 
     ? vehicles.find(v => v.id === selectedVehicle) 
     : null;
+
+  // Prepare map markers for the selected vehicle
+  const mapMarkers = selectedVehicleData && selectedVehicleData.current_location_lat && selectedVehicleData.current_location_lng
+    ? [{
+        position: [selectedVehicleData.current_location_lat, selectedVehicleData.current_location_lng] as [number, number],
+        popup: `${selectedVehicleData.name} (${selectedVehicleData.licensePlate})`,
+        icon: selectedVehicleData.type === 'car' ? undefined : undefined // Use icon based on vehicle type
+      }]
+    : [];
+
+  // Jakarta center coordinates as fallback
+  const mapCenter = selectedVehicleData && selectedVehicleData.current_location_lat && selectedVehicleData.current_location_lng
+    ? [selectedVehicleData.current_location_lat, selectedVehicleData.current_location_lng] as [number, number]
+    : [-6.2088, 106.8456] as [number, number];
 
   return (
     <div className="space-y-6">
@@ -101,29 +88,17 @@ const TrackingPage = () => {
               <CardTitle>Map</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="aspect-video bg-muted rounded-md flex items-center justify-center relative">
-                {!mapReady && (
-                  <div className="text-center space-y-2">
-                    <Navigation className="h-8 w-8 mx-auto animate-pulse text-primary" />
-                    <p>Loading map...</p>
-                  </div>
-                )}
-                {mapReady && (
+              <div className="aspect-video bg-muted rounded-md relative">
+                {loading ? (
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="text-center">
-                      <p className="mb-2">Map integration with Leaflet would be implemented here.</p>
-                      <p>Current location of <strong>{selectedVehicleData?.name}</strong></p>
-                      {selectedVehicleData?.currentLocation && (
-                        <p className="text-sm text-muted-foreground">
-                          Lat: {selectedVehicleData.currentLocation.lat}, 
-                          Lng: {selectedVehicleData.currentLocation.lng}
-                        </p>
-                      )}
-                      <div className="mt-4">
-                        <MapPin className="h-8 w-8 text-primary mx-auto animate-bounce" />
-                      </div>
-                    </div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
                   </div>
+                ) : (
+                  <Map 
+                    center={mapCenter}
+                    markers={mapMarkers}
+                    zoom={13}
+                  />
                 )}
               </div>
             </CardContent>
@@ -143,7 +118,7 @@ const TrackingPage = () => {
                     </div>
                     <div>
                       <div className="text-sm font-medium">License Plate</div>
-                      <div className="text-lg">{selectedVehicleData.licensePlate}</div>
+                      <div className="text-lg">{selectedVehicleData.license_plate}</div>
                     </div>
                     <div>
                       <div className="text-sm font-medium">Type</div>
@@ -167,8 +142,8 @@ const TrackingPage = () => {
                     <div>
                       <div className="text-sm font-medium">Current Location</div>
                       <div className="text-muted-foreground">
-                        {selectedVehicleData.currentLocation
-                          ? `Lat: ${selectedVehicleData.currentLocation.lat}, Lng: ${selectedVehicleData.currentLocation.lng}`
+                        {selectedVehicleData.current_location_lat && selectedVehicleData.current_location_lng
+                          ? `Lat: ${selectedVehicleData.current_location_lat}, Lng: ${selectedVehicleData.current_location_lng}`
                           : 'Location not available'
                         }
                       </div>
@@ -220,7 +195,7 @@ const TrackingPage = () => {
                     <SelectContent>
                       {vehicles.filter(v => v.status === 'rented').map(vehicle => (
                         <SelectItem key={vehicle.id} value={vehicle.id}>
-                          {vehicle.name} ({vehicle.licensePlate})
+                          {vehicle.name} ({vehicle.license_plate})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -244,7 +219,7 @@ const TrackingPage = () => {
                         </div>
                         <div className="text-left">
                           <div className="font-medium">{vehicle.name}</div>
-                          <div className="text-xs text-muted-foreground">{vehicle.licensePlate}</div>
+                          <div className="text-xs text-muted-foreground">{vehicle.license_plate}</div>
                         </div>
                       </div>
                     </Button>

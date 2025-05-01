@@ -1,6 +1,7 @@
 
 import { Link, useLocation } from 'react-router-dom';
-import { Car, User, Calendar, MapPin, Home, LogOut } from 'lucide-react';
+import { Car, User, Calendar, MapPin, Home } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   Sidebar as SidebarComponent,
   SidebarContent,
@@ -13,12 +14,30 @@ import {
   SidebarMenuButton,
   SidebarTrigger
 } from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/sonner';
 
 const Sidebar = () => {
   const location = useLocation();
+  const { signOut } = useAuth();
   
   const isActive = (path: string) => {
     return location.pathname === path;
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast("Signed out", {
+        description: "You have been successfully signed out.",
+      });
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast("Error", {
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -84,10 +103,14 @@ const Sidebar = () => {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
-                  <button className="w-full flex items-center gap-3 text-red-500">
-                    <LogOut className="h-5 w-5" />
+                  <Button 
+                    variant="ghost" 
+                    className="w-full flex items-center gap-3 text-red-500 justify-start"
+                    onClick={handleSignOut}
+                  >
+                    <User className="h-5 w-5" />
                     <span>Logout</span>
-                  </button>
+                  </Button>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
