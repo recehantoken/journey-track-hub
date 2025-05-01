@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,10 +22,9 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Driver, DriverStatus } from '@/types';
 import { Plus, Edit, Trash2, PhoneCall, User } from 'lucide-react';
-import { useToast } from '@/components/ui/sonner';
+import { toast } from '@/components/ui/sonner';
 
 const DriversPage = () => {
-  const { toast } = useToast();
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [filteredDrivers, setFilteredDrivers] = useState<Driver[]>([]);
   const [filterStatus, setFilterStatus] = useState<string>('all');

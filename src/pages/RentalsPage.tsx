@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -34,10 +33,9 @@ import {
   Clock,
   CreditCard
 } from 'lucide-react';
-import { useToast } from '@/components/ui/sonner';
+import { toast } from '@/components/ui/sonner';
 
 const RentalsPage = () => {
-  const { toast } = useToast();
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [availableVehicles, setAvailableVehicles] = useState<Vehicle[]>([]);
   const [availableDrivers, setAvailableDrivers] = useState<Driver[]>([]);

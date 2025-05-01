@@ -1,14 +1,12 @@
-
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DashboardStats, Rental, Vehicle } from '@/types';
 import { Car, Clock, Calendar, User } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
-import { useToast } from '@/components/ui/sonner';
+import { toast } from '@/components/ui/sonner';
 
 const Dashboard = () => {
-  const { toast } = useToast();
   const [stats, setStats] = useState<DashboardStats>({
     totalVehicles: 0,
     availableVehicles: 0,
@@ -117,7 +115,7 @@ const Dashboard = () => {
     toast("Welcome to JourneyTrack", {
       description: "Vehicle rental management system is ready!",
     });
-  }, [toast]);
+  }, []);
 
   return (
     <div className="space-y-6">
