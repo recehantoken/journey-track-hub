@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { Driver, DriverStatus } from '@/types';
 import { Plus, Edit, Trash2, PhoneCall, User } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
+import { supabase } from "@/integrations/supabase/client";
 
 const DriversPage = () => {
   const [drivers, setDrivers] = useState<Driver[]>([]);
@@ -32,47 +34,37 @@ const DriversPage = () => {
   const [currentDriver, setCurrentDriver] = useState<Driver | null>(null);
   const [formData, setFormData] = useState({
     id: '',
-    fullName: '',
-    phoneNumber: '',
-    photoUrl: '',
+    full_name: '',
+    phone_number: '',
+    photo_url: '',
     status: 'active' as DriverStatus
   });
 
   useEffect(() => {
-    // Mock data - would be replaced with API call
-    const mockDrivers: Driver[] = [
-      {
-        id: '1',
-        fullName: 'John Doe',
-        phoneNumber: '+62 123-456-7890',
-        photoUrl: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a',
-        status: 'active'
-      },
-      {
-        id: '2',
-        fullName: 'Jane Smith',
-        phoneNumber: '+62 123-456-7891',
-        photoUrl: 'https://images.unsplash.com/photo-1452378174528-3090a4bba7b2',
-        status: 'on-duty'
-      },
-      {
-        id: '3',
-        fullName: 'Bob Johnson',
-        phoneNumber: '+62 123-456-7892',
-        photoUrl: 'https://images.unsplash.com/photo-1487252665478-49b61b47f302',
-        status: 'active'
-      },
-      {
-        id: '4',
-        fullName: 'Alice Williams',
-        phoneNumber: '+62 123-456-7893',
-        photoUrl: 'https://images.unsplash.com/photo-1466721591366-2d5fba72006d',
-        status: 'off'
+    // Fetch drivers from Supabase
+    const fetchDrivers = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('drivers')
+          .select('*');
+          
+        if (error) throw error;
+        
+        if (data) {
+          setDrivers(data);
+          setFilteredDrivers(data);
+        }
+      } catch (error) {
+        console.error('Error fetching drivers:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch drivers",
+          variant: "destructive"
+        });
       }
-    ];
+    };
     
-    setDrivers(mockDrivers);
-    setFilteredDrivers(mockDrivers);
+    fetchDrivers();
   }, []);
 
   useEffect(() => {
@@ -89,9 +81,9 @@ const DriversPage = () => {
     setCurrentDriver(null);
     setFormData({
       id: '',
-      fullName: '',
-      phoneNumber: '',
-      photoUrl: '',
+      full_name: '',
+      phone_number: '',
+      photo_url: '',
       status: 'active'
     });
     setOpenDialog(true);
@@ -101,19 +93,36 @@ const DriversPage = () => {
     setCurrentDriver(driver);
     setFormData({
       id: driver.id,
-      fullName: driver.fullName,
-      phoneNumber: driver.phoneNumber,
-      photoUrl: driver.photoUrl,
+      full_name: driver.full_name,
+      phone_number: driver.phone_number,
+      photo_url: driver.photo_url || '',
       status: driver.status
     });
     setOpenDialog(true);
   };
 
-  const handleDeleteDriver = (id: string) => {
-    setDrivers(drivers.filter(driver => driver.id !== id));
-    toast("Driver deleted", {
-      description: "Driver has been removed from the system",
-    });
+  const handleDeleteDriver = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('drivers')
+        .delete()
+        .eq('id', id);
+        
+      if (error) throw error;
+      
+      setDrivers(drivers.filter(driver => driver.id !== id));
+      toast({
+        title: "Driver deleted",
+        description: "Driver has been removed from the system",
+      });
+    } catch (error) {
+      console.error('Error deleting driver:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete driver",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -131,30 +140,65 @@ const DriversPage = () => {
     }));
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (currentDriver) {
-      // Edit existing driver
-      setDrivers(drivers.map(driver => 
-        driver.id === currentDriver.id ? { ...formData, id: currentDriver.id } : driver
-      ));
-      toast("Driver updated", {
-        description: "Driver details have been updated successfully",
-      });
-    } else {
-      // Add new driver
-      const newDriver = {
-        ...formData,
-        id: Date.now().toString()
-      };
-      setDrivers([...drivers, newDriver]);
-      toast("Driver added", {
-        description: "New driver has been added to the system",
+    try {
+      if (currentDriver) {
+        // Edit existing driver
+        const { error } = await supabase
+          .from('drivers')
+          .update({
+            full_name: formData.full_name,
+            phone_number: formData.phone_number,
+            photo_url: formData.photo_url,
+            status: formData.status
+          })
+          .eq('id', currentDriver.id);
+          
+        if (error) throw error;
+        
+        setDrivers(drivers.map(driver => 
+          driver.id === currentDriver.id ? { ...driver, ...formData } : driver
+        ));
+        
+        toast({
+          title: "Driver updated",
+          description: "Driver details have been updated successfully",
+        });
+      } else {
+        // Add new driver
+        const { data, error } = await supabase
+          .from('drivers')
+          .insert([{
+            full_name: formData.full_name,
+            phone_number: formData.phone_number,
+            photo_url: formData.photo_url,
+            status: formData.status
+          }])
+          .select();
+          
+        if (error) throw error;
+        
+        if (data) {
+          setDrivers([...drivers, data[0]]);
+          
+          toast({
+            title: "Driver added",
+            description: "New driver has been added to the system",
+          });
+        }
+      }
+      
+      setOpenDialog(false);
+    } catch (error) {
+      console.error('Error saving driver:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save driver",
+        variant: "destructive"
       });
     }
-    
-    setOpenDialog(false);
   };
 
   return (
@@ -194,8 +238,8 @@ const DriversPage = () => {
           <Card key={driver.id}>
             <div className="h-48 overflow-hidden relative">
               <img 
-                src={driver.photoUrl} 
-                alt={driver.fullName}
+                src={driver.photo_url || 'https://via.placeholder.com/300'} 
+                alt={driver.full_name}
                 className="w-full h-full object-cover"
               />
               <div className="absolute top-2 right-2 flex gap-2">
@@ -227,7 +271,7 @@ const DriversPage = () => {
             </div>
             <CardContent className="p-4">
               <div className="space-y-2">
-                <h3 className="font-semibold text-lg">{driver.fullName}</h3>
+                <h3 className="font-semibold text-lg">{driver.full_name}</h3>
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center text-muted-foreground">
                     <User className="h-4 w-4 mr-1" />
@@ -235,7 +279,7 @@ const DriversPage = () => {
                   </div>
                   <div className="flex items-center">
                     <PhoneCall className="h-4 w-4 mr-1 text-muted-foreground" />
-                    <span>{driver.phoneNumber}</span>
+                    <span>{driver.phone_number}</span>
                   </div>
                 </div>
               </div>
@@ -253,35 +297,34 @@ const DriversPage = () => {
           <form onSubmit={handleFormSubmit} className="space-y-4">
             <div className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="fullName">Full Name</Label>
+                <Label htmlFor="full_name">Full Name</Label>
                 <Input
-                  id="fullName"
-                  name="fullName"
-                  value={formData.fullName}
+                  id="full_name"
+                  name="full_name"
+                  value={formData.full_name}
                   onChange={handleFormChange}
                   required
                 />
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="phoneNumber">Phone Number</Label>
+                <Label htmlFor="phone_number">Phone Number</Label>
                 <Input
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  value={formData.phoneNumber}
+                  id="phone_number"
+                  name="phone_number"
+                  value={formData.phone_number}
                   onChange={handleFormChange}
                   required
                 />
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="photoUrl">Photo URL</Label>
+                <Label htmlFor="photo_url">Photo URL</Label>
                 <Input
-                  id="photoUrl"
-                  name="photoUrl"
-                  value={formData.photoUrl}
+                  id="photo_url"
+                  name="photo_url"
+                  value={formData.photo_url}
                   onChange={handleFormChange}
-                  required
                 />
               </div>
               

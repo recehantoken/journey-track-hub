@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { 
@@ -14,10 +15,11 @@ import {
 import { Vehicle, VehicleType, VehicleStatus } from '@/types';
 import { Plus, Edit, Trash2, Car, Settings, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from '@/components/ui/sonner';
+import { supabase } from "@/integrations/supabase/client";
 
 const VehiclesPage = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -30,55 +32,37 @@ const VehiclesPage = () => {
     id: '',
     name: '',
     type: 'bus' as VehicleType,
-    licensePlate: '',
+    license_plate: '',
     seats: 0,
-    photoUrl: '',
+    photo_url: '',
     status: 'available' as VehicleStatus
   });
 
   useEffect(() => {
-    // Mock data - would be replaced with API call
-    const mockVehicles: Vehicle[] = [
-      {
-        id: '1',
-        name: 'Big Traveler',
-        type: 'bus',
-        licensePlate: 'B 1234 ABC',
-        seats: 45,
-        photoUrl: 'https://images.unsplash.com/photo-1469041797191-50ace28483c3',
-        status: 'available'
-      },
-      {
-        id: '2',
-        name: 'Mini Bus',
-        type: 'elf',
-        licensePlate: 'B 5678 DEF',
-        seats: 20,
-        photoUrl: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a',
-        status: 'rented'
-      },
-      {
-        id: '3',
-        name: 'City Shuttle',
-        type: 'hi-ace',
-        licensePlate: 'B 9012 GHI',
-        seats: 16,
-        photoUrl: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a',
-        status: 'available'
-      },
-      {
-        id: '4',
-        name: 'Executive Car',
-        type: 'car',
-        licensePlate: 'B 3456 JKL',
-        seats: 5,
-        photoUrl: 'https://images.unsplash.com/photo-1452378174528-3090a4bba7b2',
-        status: 'service'
+    // Fetch vehicles from Supabase
+    const fetchVehicles = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('vehicles')
+          .select('*');
+          
+        if (error) throw error;
+        
+        if (data) {
+          setVehicles(data);
+          setFilteredVehicles(data);
+        }
+      } catch (error) {
+        console.error('Error fetching vehicles:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch vehicles",
+          variant: "destructive"
+        });
       }
-    ];
+    };
     
-    setVehicles(mockVehicles);
-    setFilteredVehicles(mockVehicles);
+    fetchVehicles();
   }, []);
 
   useEffect(() => {
@@ -101,9 +85,9 @@ const VehiclesPage = () => {
       id: '',
       name: '',
       type: 'bus',
-      licensePlate: '',
+      license_plate: '',
       seats: 0,
-      photoUrl: '',
+      photo_url: '',
       status: 'available'
     });
     setOpenDialog(true);
@@ -115,19 +99,36 @@ const VehiclesPage = () => {
       id: vehicle.id,
       name: vehicle.name,
       type: vehicle.type,
-      licensePlate: vehicle.licensePlate,
+      license_plate: vehicle.license_plate,
       seats: vehicle.seats,
-      photoUrl: vehicle.photoUrl,
+      photo_url: vehicle.photo_url || '',
       status: vehicle.status
     });
     setOpenDialog(true);
   };
 
-  const handleDeleteVehicle = (id: string) => {
-    setVehicles(vehicles.filter(vehicle => vehicle.id !== id));
-    toast("Vehicle deleted", {
-      description: "Vehicle has been removed from the system",
-    });
+  const handleDeleteVehicle = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('vehicles')
+        .delete()
+        .eq('id', id);
+        
+      if (error) throw error;
+      
+      setVehicles(vehicles.filter(vehicle => vehicle.id !== id));
+      toast({
+        title: "Vehicle deleted",
+        description: "Vehicle has been removed from the system",
+      });
+    } catch (error) {
+      console.error('Error deleting vehicle:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete vehicle. It may be referenced in rentals.",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,30 +146,69 @@ const VehiclesPage = () => {
     }));
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (currentVehicle) {
-      // Edit existing vehicle
-      setVehicles(vehicles.map(vehicle => 
-        vehicle.id === currentVehicle.id ? { ...formData, id: currentVehicle.id } : vehicle
-      ));
-      toast("Vehicle updated", {
-        description: "Vehicle details have been updated successfully",
-      });
-    } else {
-      // Add new vehicle
-      const newVehicle = {
-        ...formData,
-        id: Date.now().toString()
-      };
-      setVehicles([...vehicles, newVehicle]);
-      toast("Vehicle added", {
-        description: "New vehicle has been added to the system",
+    try {
+      if (currentVehicle) {
+        // Edit existing vehicle
+        const { error } = await supabase
+          .from('vehicles')
+          .update({
+            name: formData.name,
+            type: formData.type,
+            license_plate: formData.license_plate,
+            seats: formData.seats,
+            photo_url: formData.photo_url,
+            status: formData.status
+          })
+          .eq('id', currentVehicle.id);
+          
+        if (error) throw error;
+        
+        setVehicles(vehicles.map(vehicle => 
+          vehicle.id === currentVehicle.id ? { ...vehicle, ...formData } : vehicle
+        ));
+        
+        toast({
+          title: "Vehicle updated",
+          description: "Vehicle details have been updated successfully",
+        });
+      } else {
+        // Add new vehicle
+        const { data, error } = await supabase
+          .from('vehicles')
+          .insert([{
+            name: formData.name,
+            type: formData.type,
+            license_plate: formData.license_plate,
+            seats: formData.seats,
+            photo_url: formData.photo_url,
+            status: formData.status
+          }])
+          .select();
+          
+        if (error) throw error;
+        
+        if (data) {
+          setVehicles([...vehicles, data[0]]);
+          
+          toast({
+            title: "Vehicle added",
+            description: "New vehicle has been added to the system",
+          });
+        }
+      }
+      
+      setOpenDialog(false);
+    } catch (error) {
+      console.error('Error saving vehicle:', error);
+      toast({
+        title: "Error",
+        description: "Failed to save vehicle",
+        variant: "destructive"
       });
     }
-    
-    setOpenDialog(false);
   };
 
   return (
@@ -225,7 +265,7 @@ const VehiclesPage = () => {
           <Card key={vehicle.id} className="overflow-hidden">
             <div className="h-48 overflow-hidden relative">
               <img 
-                src={vehicle.photoUrl} 
+                src={vehicle.photo_url || 'https://via.placeholder.com/300'} 
                 alt={vehicle.name}
                 className="w-full h-full object-cover"
               />
@@ -271,7 +311,7 @@ const VehiclesPage = () => {
                 </div>
                 <div className="flex items-center text-sm font-medium mt-1">
                   <Clock className="h-4 w-4 mr-1 text-muted-foreground" />
-                  <span>{vehicle.licensePlate}</span>
+                  <span>{vehicle.license_plate}</span>
                 </div>
               </div>
             </CardContent>
@@ -331,24 +371,23 @@ const VehiclesPage = () => {
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="licensePlate">License Plate</Label>
+                <Label htmlFor="license_plate">License Plate</Label>
                 <Input
-                  id="licensePlate"
-                  name="licensePlate"
-                  value={formData.licensePlate}
+                  id="license_plate"
+                  name="license_plate"
+                  value={formData.license_plate}
                   onChange={handleFormChange}
                   required
                 />
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="photoUrl">Photo URL</Label>
+                <Label htmlFor="photo_url">Photo URL</Label>
                 <Input
-                  id="photoUrl"
-                  name="photoUrl"
-                  value={formData.photoUrl}
+                  id="photo_url"
+                  name="photo_url"
+                  value={formData.photo_url}
                   onChange={handleFormChange}
-                  required
                 />
               </div>
               

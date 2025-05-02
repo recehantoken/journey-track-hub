@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -34,6 +35,7 @@ import {
   CreditCard
 } from 'lucide-react';
 import { toast } from '@/components/ui/sonner';
+import { supabase } from "@/integrations/supabase/client";
 
 const RentalsPage = () => {
   const [rentals, setRentals] = useState<Rental[]>([]);
@@ -44,123 +46,77 @@ const RentalsPage = () => {
   
   const [formData, setFormData] = useState({
     id: '',
-    renterName: '',
-    renterPhone: '',
-    vehicleId: '',
-    driverId: '',
-    startDate: '',
-    endDate: '',
+    renter_name: '',
+    renter_phone: '',
+    vehicle_id: '',
+    driver_id: '',
+    start_date: '',
+    end_date: '',
     destination: '',
-    paymentStatus: 'pending' as PaymentStatus
+    payment_status: 'pending' as PaymentStatus
   });
 
   useEffect(() => {
-    // Mock data - would be replaced with API calls
-    const mockRentals: Rental[] = [
-      {
-        id: '1',
-        renterName: 'John Doe',
-        renterPhone: '+62 123-456-7890',
-        vehicleId: '1',
-        driverId: '1',
-        startDate: '2025-05-01T08:00:00',
-        endDate: '2025-05-03T18:00:00',
-        destination: 'Jakarta',
-        paymentStatus: 'paid',
-        created_at: '2025-04-28T10:30:00'
-      },
-      {
-        id: '2',
-        renterName: 'Jane Smith',
-        renterPhone: '+62 123-456-7891',
-        vehicleId: '2',
-        driverId: null,
-        startDate: '2025-05-02T09:00:00',
-        endDate: '2025-05-02T17:00:00',
-        destination: 'Bandung',
-        paymentStatus: 'pending',
-        created_at: '2025-04-29T14:15:00'
-      },
-      {
-        id: '3',
-        renterName: 'Bob Johnson',
-        renterPhone: '+62 123-456-7892',
-        vehicleId: '3',
-        driverId: '2',
-        startDate: '2025-05-05T07:30:00',
-        endDate: '2025-05-07T19:00:00',
-        destination: 'Surabaya',
-        paymentStatus: 'paid',
-        created_at: '2025-04-30T11:45:00'
-      },
-      {
-        id: '4',
-        renterName: 'Alice Williams',
-        renterPhone: '+62 123-456-7893',
-        vehicleId: '4',
-        driverId: '3',
-        startDate: '2025-04-28T10:00:00',
-        endDate: '2025-04-30T16:00:00',
-        destination: 'Yogyakarta',
-        paymentStatus: 'failed',
-        created_at: '2025-04-27T09:20:00'
+    // Fetch data from Supabase
+    const fetchData = async () => {
+      try {
+        // Fetch rentals with related data
+        const { data: rentalsData, error: rentalsError } = await supabase
+          .from('rentals')
+          .select(`
+            *,
+            vehicle:vehicles(*),
+            driver:drivers(*)
+          `)
+          .order('created_at', { ascending: false });
+        
+        if (rentalsError) throw rentalsError;
+        
+        // Fetch available vehicles
+        const { data: vehiclesData, error: vehiclesError } = await supabase
+          .from('vehicles')
+          .select('*')
+          .eq('status', 'available');
+          
+        if (vehiclesError) throw vehiclesError;
+        
+        // Fetch available drivers
+        const { data: driversData, error: driversError } = await supabase
+          .from('drivers')
+          .select('*')
+          .eq('status', 'active');
+          
+        if (driversError) throw driversError;
+        
+        // Update state
+        if (rentalsData) setRentals(rentalsData);
+        if (vehiclesData) setAvailableVehicles(vehiclesData);
+        if (driversData) setAvailableDrivers(driversData);
+        
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch data from database",
+          variant: "destructive"
+        });
       }
-    ];
+    };
     
-    const mockVehicles: Vehicle[] = [
-      {
-        id: '1',
-        name: 'Big Traveler',
-        type: 'bus',
-        licensePlate: 'B 1234 ABC',
-        seats: 45,
-        photoUrl: 'https://images.unsplash.com/photo-1469041797191-50ace28483c3',
-        status: 'available'
-      },
-      {
-        id: '3',
-        name: 'City Shuttle',
-        type: 'hi-ace',
-        licensePlate: 'B 9012 GHI',
-        seats: 16,
-        photoUrl: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a',
-        status: 'available'
-      }
-    ];
-    
-    const mockDrivers: Driver[] = [
-      {
-        id: '1',
-        fullName: 'John Doe',
-        phoneNumber: '+62 123-456-7890',
-        photoUrl: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a',
-        status: 'active'
-      },
-      {
-        id: '3',
-        fullName: 'Bob Johnson',
-        phoneNumber: '+62 123-456-7892',
-        photoUrl: 'https://images.unsplash.com/photo-1487252665478-49b61b47f302',
-        status: 'active'
-      }
-    ];
-    
-    setRentals(mockRentals);
-    setAvailableVehicles(mockVehicles);
-    setAvailableDrivers(mockDrivers);
+    fetchData();
   }, []);
 
   const handleAddRental = () => {
     setFormData({
       id: '',
-      renterName: '',
-      renterPhone: '',
-      vehicleId: '',
-      driverId: '',
-      startDate: '',
-      endDate: '',
+      renter_name: '',
+      renter_phone: '',
+      vehicle_id: '',
+      driver_id: '',
+      start_date: '',
+      end_date: '',
       destination: '',
-      paymentStatus: 'pending'
+      payment_status: 'pending'
     });
     setOpenDialog(true);
   };
@@ -180,29 +136,74 @@ const RentalsPage = () => {
     }));
   };
 
-  const handleFormSubmit = (e: React.FormEvent) => {
+  const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const newRental = {
-      ...formData,
-      id: Date.now().toString(),
-      driverId: formData.driverId || null,
-      created_at: new Date().toISOString()
-    };
-    
-    setRentals([newRental, ...rentals]);
-    setOpenDialog(false);
-    toast("Rental created", {
-      description: "New rental has been added to the system",
-    });
+    try {
+      // Insert new rental
+      const { data, error } = await supabase
+        .from('rentals')
+        .insert([formData])
+        .select();
+      
+      if (error) throw error;
+      
+      if (data) {
+        // Fetch the complete rental with relationships
+        const { data: rentalWithRelations, error: relationsError } = await supabase
+          .from('rentals')
+          .select(`
+            *,
+            vehicle:vehicles(*),
+            driver:drivers(*)
+          `)
+          .eq('id', data[0].id)
+          .single();
+        
+        if (relationsError) throw relationsError;
+        
+        // Update rentals state
+        setRentals([rentalWithRelations, ...rentals]);
+        
+        // Update vehicle status to "rented"
+        await supabase
+          .from('vehicles')
+          .update({ status: 'rented' })
+          .eq('id', formData.vehicle_id);
+          
+        // Update driver status to "on-duty"
+        await supabase
+          .from('drivers')
+          .update({ status: 'on-duty' })
+          .eq('id', formData.driver_id);
+        
+        // Remove vehicle and driver from available lists
+        setAvailableVehicles(availableVehicles.filter(v => v.id !== formData.vehicle_id));
+        setAvailableDrivers(availableDrivers.filter(d => d.id !== formData.driver_id));
+        
+        setOpenDialog(false);
+        
+        toast({
+          title: "Rental created",
+          description: "New rental has been added to the system",
+        });
+      }
+    } catch (error) {
+      console.error('Error creating rental:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create rental",
+        variant: "destructive"
+      });
+    }
   };
 
   const filteredRentals = rentals.filter(rental => {
     if (currentTab === 'all') return true;
     
     const currentDate = new Date();
-    const startDate = new Date(rental.startDate);
-    const endDate = new Date(rental.endDate);
+    const startDate = new Date(rental.start_date);
+    const endDate = new Date(rental.end_date);
     
     if (currentTab === 'active') {
       return currentDate >= startDate && currentDate <= endDate;
@@ -214,6 +215,33 @@ const RentalsPage = () => {
     
     return true;
   });
+
+  const updatePaymentStatus = async (rentalId: string, paymentStatus: PaymentStatus) => {
+    try {
+      const { error } = await supabase
+        .from('rentals')
+        .update({ payment_status: paymentStatus })
+        .eq('id', rentalId);
+        
+      if (error) throw error;
+      
+      setRentals(rentals.map(rental => 
+        rental.id === rentalId ? { ...rental, payment_status: paymentStatus } : rental
+      ));
+      
+      toast({
+        title: "Payment status updated",
+        description: `Payment status has been updated to ${paymentStatus}`,
+      });
+    } catch (error) {
+      console.error('Error updating payment status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update payment status",
+        variant: "destructive"
+      });
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -239,7 +267,11 @@ const RentalsPage = () => {
         <TabsContent value="all" className="mt-4">
           <div className="grid grid-cols-1 gap-4">
             {filteredRentals.map(rental => (
-              <RentalCard key={rental.id} rental={rental} />
+              <RentalCard 
+                key={rental.id} 
+                rental={rental} 
+                onUpdatePayment={updatePaymentStatus}
+              />
             ))}
           </div>
         </TabsContent>
@@ -247,7 +279,11 @@ const RentalsPage = () => {
         <TabsContent value="active" className="mt-4">
           <div className="grid grid-cols-1 gap-4">
             {filteredRentals.map(rental => (
-              <RentalCard key={rental.id} rental={rental} />
+              <RentalCard 
+                key={rental.id} 
+                rental={rental} 
+                onUpdatePayment={updatePaymentStatus}
+              />
             ))}
           </div>
         </TabsContent>
@@ -255,7 +291,11 @@ const RentalsPage = () => {
         <TabsContent value="upcoming" className="mt-4">
           <div className="grid grid-cols-1 gap-4">
             {filteredRentals.map(rental => (
-              <RentalCard key={rental.id} rental={rental} />
+              <RentalCard 
+                key={rental.id} 
+                rental={rental} 
+                onUpdatePayment={updatePaymentStatus}
+              />
             ))}
           </div>
         </TabsContent>
@@ -263,7 +303,11 @@ const RentalsPage = () => {
         <TabsContent value="completed" className="mt-4">
           <div className="grid grid-cols-1 gap-4">
             {filteredRentals.map(rental => (
-              <RentalCard key={rental.id} rental={rental} />
+              <RentalCard 
+                key={rental.id} 
+                rental={rental} 
+                onUpdatePayment={updatePaymentStatus}
+              />
             ))}
           </div>
         </TabsContent>
@@ -279,21 +323,21 @@ const RentalsPage = () => {
             <div className="grid gap-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="renterName">Renter Name</Label>
+                  <Label htmlFor="renter_name">Renter Name</Label>
                   <Input
-                    id="renterName"
-                    name="renterName"
-                    value={formData.renterName}
+                    id="renter_name"
+                    name="renter_name"
+                    value={formData.renter_name}
                     onChange={handleFormChange}
                     required
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="renterPhone">Renter Phone</Label>
+                  <Label htmlFor="renter_phone">Renter Phone</Label>
                   <Input
-                    id="renterPhone"
-                    name="renterPhone"
-                    value={formData.renterPhone}
+                    id="renter_phone"
+                    name="renter_phone"
+                    value={formData.renter_phone}
                     onChange={handleFormChange}
                     required
                   />
@@ -301,18 +345,18 @@ const RentalsPage = () => {
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="vehicleId">Vehicle</Label>
+                <Label htmlFor="vehicle_id">Vehicle</Label>
                 <Select 
-                  value={formData.vehicleId} 
-                  onValueChange={(value) => handleSelectChange('vehicleId', value)}
+                  value={formData.vehicle_id} 
+                  onValueChange={(value) => handleSelectChange('vehicle_id', value)}
                 >
-                  <SelectTrigger id="vehicleId">
+                  <SelectTrigger id="vehicle_id">
                     <SelectValue placeholder="Select vehicle" />
                   </SelectTrigger>
                   <SelectContent>
                     {availableVehicles.map(vehicle => (
                       <SelectItem key={vehicle.id} value={vehicle.id}>
-                        {vehicle.name} - {vehicle.licensePlate} ({vehicle.type})
+                        {vehicle.name} - {vehicle.license_plate} ({vehicle.type})
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -320,19 +364,18 @@ const RentalsPage = () => {
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="driverId">Driver (Optional)</Label>
+                <Label htmlFor="driver_id">Driver</Label>
                 <Select 
-                  value={formData.driverId} 
-                  onValueChange={(value) => handleSelectChange('driverId', value)}
+                  value={formData.driver_id} 
+                  onValueChange={(value) => handleSelectChange('driver_id', value)}
                 >
-                  <SelectTrigger id="driverId">
-                    <SelectValue placeholder="Select driver (optional)" />
+                  <SelectTrigger id="driver_id">
+                    <SelectValue placeholder="Select driver" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No Driver</SelectItem>
                     {availableDrivers.map(driver => (
                       <SelectItem key={driver.id} value={driver.id}>
-                        {driver.fullName} - {driver.phoneNumber}
+                        {driver.full_name} - {driver.phone_number}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -352,23 +395,23 @@ const RentalsPage = () => {
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="startDate">Start Date & Time</Label>
+                  <Label htmlFor="start_date">Start Date & Time</Label>
                   <Input
-                    id="startDate"
-                    name="startDate"
+                    id="start_date"
+                    name="start_date"
                     type="datetime-local"
-                    value={formData.startDate}
+                    value={formData.start_date}
                     onChange={handleFormChange}
                     required
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="endDate">End Date & Time</Label>
+                  <Label htmlFor="end_date">End Date & Time</Label>
                   <Input
-                    id="endDate"
-                    name="endDate"
+                    id="end_date"
+                    name="end_date"
                     type="datetime-local"
-                    value={formData.endDate}
+                    value={formData.end_date}
                     onChange={handleFormChange}
                     required
                   />
@@ -376,18 +419,18 @@ const RentalsPage = () => {
               </div>
               
               <div className="grid gap-2">
-                <Label htmlFor="paymentStatus">Payment Status</Label>
+                <Label htmlFor="payment_status">Payment Status</Label>
                 <Select 
-                  value={formData.paymentStatus} 
-                  onValueChange={(value) => handleSelectChange('paymentStatus', value)}
+                  value={formData.payment_status} 
+                  onValueChange={(value) => handleSelectChange('payment_status', value as PaymentStatus)}
                 >
-                  <SelectTrigger id="paymentStatus">
+                  <SelectTrigger id="payment_status">
                     <SelectValue placeholder="Select payment status" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="paid">Paid</SelectItem>
                     <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="failed">Failed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -410,11 +453,12 @@ const RentalsPage = () => {
 
 interface RentalCardProps {
   rental: Rental;
+  onUpdatePayment: (rentalId: string, paymentStatus: PaymentStatus) => void;
 }
 
-const RentalCard = ({ rental }: RentalCardProps) => {
-  const startDate = new Date(rental.startDate);
-  const endDate = new Date(rental.endDate);
+const RentalCard = ({ rental, onUpdatePayment }: RentalCardProps) => {
+  const startDate = new Date(rental.start_date);
+  const endDate = new Date(rental.end_date);
   const currentDate = new Date();
   
   let statusBadge = "";
@@ -427,9 +471,9 @@ const RentalCard = ({ rental }: RentalCardProps) => {
   }
   
   let paymentBadge = "";
-  if (rental.paymentStatus === 'paid') {
+  if (rental.payment_status === 'paid') {
     paymentBadge = "bg-emerald-100 text-emerald-700";
-  } else if (rental.paymentStatus === 'pending') {
+  } else if (rental.payment_status === 'pending') {
     paymentBadge = "bg-amber-100 text-amber-700";
   } else {
     paymentBadge = "bg-red-100 text-red-700";
@@ -439,14 +483,14 @@ const RentalCard = ({ rental }: RentalCardProps) => {
     <Card>
       <CardHeader className="pb-2">
         <div className="flex justify-between items-start">
-          <CardTitle>{rental.renterName}</CardTitle>
+          <CardTitle>{rental.renter_name}</CardTitle>
           <div className="flex gap-2">
             <span className={`px-2 py-1 rounded-md text-xs font-medium ${statusBadge}`}>
               {currentDate < startDate ? "Upcoming" : 
                currentDate >= startDate && currentDate <= endDate ? "Active" : "Completed"}
             </span>
             <span className={`px-2 py-1 rounded-md text-xs font-medium ${paymentBadge}`}>
-              {rental.paymentStatus.charAt(0).toUpperCase() + rental.paymentStatus.slice(1)}
+              {rental.payment_status.charAt(0).toUpperCase() + rental.payment_status.slice(1)}
             </span>
           </div>
         </div>
@@ -456,7 +500,7 @@ const RentalCard = ({ rental }: RentalCardProps) => {
           <div className="flex items-center gap-4">
             <div className="flex items-center text-muted-foreground">
               <Phone className="h-4 w-4 mr-1" />
-              <span>{rental.renterPhone}</span>
+              <span>{rental.renter_phone}</span>
             </div>
             <div className="flex items-center text-muted-foreground">
               <MapPin className="h-4 w-4 mr-1" />
@@ -482,9 +526,14 @@ const RentalCard = ({ rental }: RentalCardProps) => {
               <div>
                 <div className="text-sm font-medium">Payment Status</div>
                 <div className="text-sm text-muted-foreground">
-                  {rental.paymentStatus.charAt(0).toUpperCase() + rental.paymentStatus.slice(1)}
-                  {rental.paymentStatus === 'pending' && (
-                    <Button variant="link" size="sm" className="h-auto p-0 ml-2">
+                  {rental.payment_status.charAt(0).toUpperCase() + rental.payment_status.slice(1)}
+                  {rental.payment_status === 'pending' && (
+                    <Button 
+                      variant="link" 
+                      size="sm" 
+                      className="h-auto p-0 ml-2"
+                      onClick={() => onUpdatePayment(rental.id, 'paid')}
+                    >
                       Update Payment
                     </Button>
                   )}
@@ -498,7 +547,9 @@ const RentalCard = ({ rental }: RentalCardProps) => {
               <Car className="h-5 w-5 mr-2 text-primary" />
               <div>
                 <div className="text-sm font-medium">Vehicle</div>
-                <div className="text-sm text-muted-foreground">ID: {rental.vehicleId}</div>
+                <div className="text-sm text-muted-foreground">
+                  {rental.vehicle ? `${rental.vehicle.name} (${rental.vehicle.license_plate})` : `ID: ${rental.vehicle_id}`}
+                </div>
               </div>
             </div>
             
@@ -507,15 +558,17 @@ const RentalCard = ({ rental }: RentalCardProps) => {
               <div>
                 <div className="text-sm font-medium">Driver</div>
                 <div className="text-sm text-muted-foreground">
-                  {rental.driverId ? `ID: ${rental.driverId}` : 'No driver assigned'}
+                  {rental.driver ? rental.driver.full_name : `ID: ${rental.driver_id}`}
                 </div>
               </div>
             </div>
           </div>
           
           <div className="flex justify-end gap-2 mt-2">
-            <Button variant="outline" size="sm">
-              <Clock className="h-4 w-4 mr-1" /> Track
+            <Button variant="outline" size="sm" asChild>
+              <a href={`/tracking?vehicle=${rental.vehicle_id}`}>
+                <Clock className="h-4 w-4 mr-1" /> Track
+              </a>
             </Button>
             <Button variant="outline" size="sm">
               Edit Details
