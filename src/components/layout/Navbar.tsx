@@ -47,7 +47,7 @@ const Navbar = ({ toggle, isOpen }: NavbarProps) => {
           </button>
           <Link to="/" className="flex items-center">
             <span className="text-xl font-bold text-navy-800">
-              JourneyTrack
+              Moretrip Rentals
             </span>
           </Link>
         </div>

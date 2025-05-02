@@ -62,7 +62,7 @@ const LoginPage = () => {
         
         <Card>
           <CardHeader className="space-y-1 text-center">
-            <CardTitle className="text-2xl font-bold">JourneyTrack Hub</CardTitle>
+            <CardTitle className="text-2xl font-bold">Moretrip Rental Hub</CardTitle>
             <CardDescription>Enter your credentials to login</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
@@ -109,7 +109,7 @@ const LoginPage = () => {
         </Card>
         
         <div className="mt-4 text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} JourneyTrack Hub. All rights reserved.
+          &copy; {new Date().getFullYear()} Moretrip Rental Hub. All rights reserved.
         </div>
       </div>
     </div>
