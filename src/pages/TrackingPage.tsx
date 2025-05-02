@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
@@ -37,13 +36,21 @@ const TrackingPage = () => {
         if (error) throw error;
         
         if (vehiclesData) {
-          setVehicles(vehiclesData as Vehicle[]);
+          // Transform data to match our Vehicle interface
+          const transformedVehicles: Vehicle[] = vehiclesData.map(v => ({
+            ...v,
+            licensePlate: v.license_plate, // For backward compatibility
+            photoUrl: v.photo_url // For backward compatibility
+          }));
+          
+          setVehicles(transformedVehicles);
+          
           // Select first vehicle with status 'rented' by default
-          const rentedVehicle = vehiclesData.find(v => v.status === 'rented');
+          const rentedVehicle = transformedVehicles.find(v => v.status === 'rented');
           if (rentedVehicle) {
             setSelectedVehicle(rentedVehicle.id);
-          } else if (vehiclesData.length > 0) {
-            setSelectedVehicle(vehiclesData[0].id);
+          } else if (transformedVehicles.length > 0) {
+            setSelectedVehicle(transformedVehicles[0].id);
           }
         }
       } catch (error) {
@@ -64,7 +71,7 @@ const TrackingPage = () => {
   const mapMarkers = selectedVehicleData && selectedVehicleData.current_location_lat && selectedVehicleData.current_location_lng
     ? [{
         position: [selectedVehicleData.current_location_lat, selectedVehicleData.current_location_lng] as [number, number],
-        popup: `${selectedVehicleData.name} (${selectedVehicleData.licensePlate})`,
+        popup: `${selectedVehicleData.name} (${selectedVehicleData.license_plate})`,
         icon: selectedVehicleData.type === 'car' ? undefined : undefined // Use icon based on vehicle type
       }]
     : [];

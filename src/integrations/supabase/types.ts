@@ -9,7 +9,201 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      drivers: {
+        Row: {
+          created_at: string | null
+          full_name: string
+          id: string
+          phone_number: string
+          photo_url: string | null
+          status: Database["public"]["Enums"]["driver_status"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          full_name: string
+          id?: string
+          phone_number: string
+          photo_url?: string | null
+          status?: Database["public"]["Enums"]["driver_status"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          full_name?: string
+          id?: string
+          phone_number?: string
+          photo_url?: string | null
+          status?: Database["public"]["Enums"]["driver_status"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          full_name: string | null
+          id: string
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      rentals: {
+        Row: {
+          created_at: string | null
+          destination: string
+          driver_id: string
+          end_date: string
+          id: string
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          renter_name: string
+          renter_phone: string
+          start_date: string
+          updated_at: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          destination: string
+          driver_id: string
+          end_date: string
+          id?: string
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          renter_name: string
+          renter_phone: string
+          start_date: string
+          updated_at?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          created_at?: string | null
+          destination?: string
+          driver_id?: string
+          end_date?: string
+          id?: string
+          payment_status?: Database["public"]["Enums"]["payment_status"]
+          renter_name?: string
+          renter_phone?: string
+          start_date?: string
+          updated_at?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rentals_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "drivers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "rentals_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tracking_history: {
+        Row: {
+          id: string
+          latitude: number
+          longitude: number
+          rental_id: string | null
+          timestamp: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          id?: string
+          latitude: number
+          longitude: number
+          rental_id?: string | null
+          timestamp?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          id?: string
+          latitude?: number
+          longitude?: number
+          rental_id?: string | null
+          timestamp?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracking_history_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "rentals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tracking_history_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicles: {
+        Row: {
+          created_at: string | null
+          current_location_lat: number | null
+          current_location_lng: number | null
+          id: string
+          license_plate: string
+          name: string
+          photo_url: string | null
+          seats: number
+          status: Database["public"]["Enums"]["vehicle_status"]
+          type: Database["public"]["Enums"]["vehicle_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          current_location_lat?: number | null
+          current_location_lng?: number | null
+          id?: string
+          license_plate: string
+          name: string
+          photo_url?: string | null
+          seats: number
+          status?: Database["public"]["Enums"]["vehicle_status"]
+          type: Database["public"]["Enums"]["vehicle_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          current_location_lat?: number | null
+          current_location_lng?: number | null
+          id?: string
+          license_plate?: string
+          name?: string
+          photo_url?: string | null
+          seats?: number
+          status?: Database["public"]["Enums"]["vehicle_status"]
+          type?: Database["public"]["Enums"]["vehicle_type"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +212,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      driver_status: "active" | "on-duty" | "off"
+      payment_status: "pending" | "paid" | "cancelled"
+      vehicle_status: "available" | "rented" | "service"
+      vehicle_type: "bus" | "elf" | "hi-ace" | "car"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +330,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      driver_status: ["active", "on-duty", "off"],
+      payment_status: ["pending", "paid", "cancelled"],
+      vehicle_status: ["available", "rented", "service"],
+      vehicle_type: ["bus", "elf", "hi-ace", "car"],
+    },
   },
 } as const

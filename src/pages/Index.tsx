@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Vehicle, Driver } from '@/types';
@@ -65,8 +64,7 @@ const Index = () => {
         
       } catch (error: any) {
         toast("Error loading data", { 
-          description: error.message,
-          variant: "destructive"
+          description: error.message
         });
       } finally {
         setLoading(false);

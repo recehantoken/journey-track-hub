@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from 'react-router-dom';
 import { Car, User, Calendar, MapPin, Home } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -29,13 +28,12 @@ const Sidebar = () => {
     try {
       await signOut();
       toast("Signed out", {
-        description: "You have been successfully signed out.",
+        description: "You have been successfully signed out."
       });
     } catch (error) {
       console.error("Error signing out:", error);
       toast("Error", {
-        description: "Failed to sign out. Please try again.",
-        variant: "destructive",
+        description: "Failed to sign out. Please try again."
       });
     }
   };

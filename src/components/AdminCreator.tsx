@@ -13,12 +13,11 @@ const AdminCreator = () => {
       setIsLoading(true);
       await createAdminUser('admin@admin.com', 'admin123');
       toast("Success", {
-        description: "Admin user created successfully with email: admin@admin.com and password: admin123",
+        description: "Admin user created successfully with email: admin@admin.com and password: admin123"
       });
     } catch (error: any) {
       toast("Error", {
-        description: error.message || "Failed to create admin user",
-        variant: "destructive",
+        description: error.message || "Failed to create admin user"
       });
     } finally {
       setIsLoading(false);
