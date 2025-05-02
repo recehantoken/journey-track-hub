@@ -43,7 +43,7 @@ const Sidebar = () => {
       <SidebarHeader className="flex items-center justify-between px-4 h-16">
         <Link to="/" className="flex items-center gap-2">
           <Car className="h-6 w-6 text-primary" />
-          <span className="font-bold text-xl">JourneyTrack</span>
+          <span className="font-bold text-xl">Moretrip</span>
         </Link>
         <SidebarTrigger />
       </SidebarHeader>
