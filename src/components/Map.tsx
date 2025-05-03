@@ -4,7 +4,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { supabase } from "@/integrations/supabase/client";
 import { Vehicle, TrackingData } from '@/types';
-import { toast } from '@/components/ui/sonner';
+import { showToast, showErrorToast } from '@/utils/toasts';
 
 interface MapProps {
   center: [number, number];
@@ -90,11 +90,12 @@ const Map = ({ center, markers = [], zoom = 13, liveTracking = false, refreshInt
         }
         
         if (data) {
-          setVehicles(data);
+          // Use type assertion to tell TypeScript this data matches our Vehicle type
+          setVehicles(data as unknown as Vehicle[]);
         }
       } catch (error) {
         console.error('Error fetching vehicles:', error);
-        toast("Failed to fetch vehicle data");
+        showErrorToast("Failed to fetch vehicle data");
       }
     };
     

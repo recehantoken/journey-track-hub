@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from '@/components/ui/button';
@@ -9,12 +10,12 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { toast } from '@/components/ui/sonner';
 import { Driver } from '@/types';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Phone, User, UserPlus } from 'lucide-react';
+import { showToast, showErrorToast, showSuccessToast } from '@/utils/toasts';
 
 const DriversPage = () => {
   const [drivers, setDrivers] = useState<Driver[]>([]);
@@ -33,12 +34,12 @@ const DriversPage = () => {
           .order('full_name');
 
         if (error) throw error;
-        setDrivers(data || []);
+        
+        // Use type assertion to handle Supabase data
+        setDrivers(data as Driver[] || []);
       } catch (error) {
         console.error('Error fetching drivers:', error);
-        toast("Failed to fetch drivers", {
-          style: { backgroundColor: "hsl(var(--destructive))", color: "hsl(var(--destructive-foreground))" }
-        });
+        showErrorToast("Failed to fetch drivers");
       } finally {
         setIsLoading(false);
       }
@@ -51,33 +52,35 @@ const DriversPage = () => {
   const handleCreateDriver = async () => {
     // Basic validation
     if (!newDriver.full_name || !newDriver.phone_number) {
-      toast("Please fill in all required fields");
+      showToast("Please fill in all required fields");
       return;
     }
 
     try {
       const { data, error } = await supabase
         .from('drivers')
-        .insert([
-          {
-            full_name: newDriver.full_name,
-            phone_number: newDriver.phone_number,
-            status: 'available'
-          }
-        ])
+        .insert({
+          full_name: newDriver.full_name,
+          phone_number: newDriver.phone_number,
+          status: 'active'
+        })
         .select();
 
       if (error) throw error;
 
-      setDrivers([...(data || []), ...drivers]);
+      // Add the new driver to our state
+      const newDrivers = [...drivers];
+      if (data && data[0]) {
+        newDrivers.unshift(data[0] as Driver);
+      }
+      
+      setDrivers(newDrivers);
       setNewDriver({ full_name: '', phone_number: '' });
       setIsCreateDialogOpen(false);
-      toast("Driver created successfully");
+      showSuccessToast("Driver created successfully");
     } catch (error) {
       console.error('Error creating driver:', error);
-      toast("Failed to create driver", {
-        style: { backgroundColor: "hsl(var(--destructive))", color: "hsl(var(--destructive-foreground))" }
-      });
+      showErrorToast("Failed to create driver");
     }
   };
 
@@ -119,13 +122,13 @@ const DriversPage = () => {
                     <TableCell>{driver.phone_number}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        driver.status === 'available' 
+                        driver.status === 'active' 
                           ? 'bg-green-100 text-green-800' 
-                          : driver.status === 'busy' 
+                          : driver.status === 'on-duty' 
                             ? 'bg-orange-100 text-orange-800' 
                             : 'bg-gray-100 text-gray-800'
                       }`}>
-                        {driver.status.charAt(0).toUpperCase() + driver.status.slice(1)}
+                        {driver.status.replace('_', ' ').charAt(0).toUpperCase() + driver.status.slice(1)}
                       </span>
                     </TableCell>
                     <TableCell>

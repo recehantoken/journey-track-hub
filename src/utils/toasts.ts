@@ -15,7 +15,6 @@ export const showToast = (message: string, options?: { type?: "default" | "destr
  */
 export const showSuccessToast = (message: string) => {
   toast(message, { 
-    description: message,
     style: { backgroundColor: "hsl(var(--success))", color: "hsl(var(--success-foreground))" }
   });
 };
@@ -25,7 +24,6 @@ export const showSuccessToast = (message: string) => {
  */
 export const showErrorToast = (message: string) => {
   toast(message, { 
-    description: message,
     style: { backgroundColor: "hsl(var(--destructive))", color: "hsl(var(--destructive-foreground))" }
   });
 };

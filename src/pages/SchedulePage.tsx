@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar as CalendarIcon, Download, Plus } from 'lucide-react';
-import { toast } from '@/components/ui/sonner';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -23,7 +22,8 @@ import {
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 import { Driver, Rental, Vehicle } from '@/types';
-import { sampleRentals } from '@/utils/sampleData';
+import { Link } from 'react-router-dom';
+import { showToast, showErrorToast, showSuccessToast } from '@/utils/toasts';
 
 const SchedulePage = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
@@ -59,12 +59,12 @@ const SchedulePage = () => {
 
         if (driversError) throw driversError;
 
-        setRentals(rentalsData || []);
-        setVehicles(vehiclesData || []);
-        setDrivers(driversData || []);
+        setRentals(rentalsData as Rental[] || []);
+        setVehicles(vehiclesData as Vehicle[] || []);
+        setDrivers(driversData as Driver[] || []);
       } catch (error) {
         console.error('Error fetching data:', error);
-        toast("Failed to load schedule data");
+        showErrorToast("Failed to load schedule data");
       } finally {
         setIsLoading(false);
       }
@@ -94,18 +94,16 @@ const SchedulePage = () => {
 
   const handleExportCalendar = async () => {
     try {
-      toast("Exporting calendar data...");
+      showToast("Exporting calendar data...");
       
       // In a real app, here you would trigger the Google Calendar integration
       // For now, we'll just simulate success
       setTimeout(() => {
-        toast("Calendar exported successfully");
+        showSuccessToast("Calendar exported successfully");
       }, 2000);
     } catch (error) {
       console.error('Error exporting calendar:', error);
-      toast("Failed to export calendar", {
-        style: { backgroundColor: "hsl(var(--destructive))", color: "hsl(var(--destructive-foreground))" }
-      });
+      showErrorToast("Failed to export calendar");
     }
   };
 
@@ -257,8 +255,5 @@ const SchedulePage = () => {
     </div>
   );
 };
-
-// Add missing import for Link component
-import { Link } from 'react-router-dom';
 
 export default SchedulePage;

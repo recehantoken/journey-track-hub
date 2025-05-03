@@ -1,24 +1,13 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { toast } from '@/components/ui/sonner';
-import { Vehicle } from '@/types';
+import { Vehicle, TrackingData } from '@/types';
 import Map from '@/components/Map';
-import { Loader2, Car } from 'lucide-react';
+import { Car } from 'lucide-react';
 import { showToast, showErrorToast } from '@/utils/toasts';
-
-// Define the TrackingData interface
-interface TrackingData {
-  id: string;
-  vehicle_id: string;
-  latitude: number;
-  longitude: number;
-  timestamp: string;
-  rental_id?: string;
-}
 
 const TrackingPage = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -39,13 +28,11 @@ const TrackingPage = () => {
         if (error) throw error;
         
         if (data) {
-          setVehicles(data);
+          setVehicles(data as Vehicle[]);
         }
       } catch (error) {
         console.error('Error fetching vehicles:', error);
-        toast("Failed to fetch vehicles", {
-          style: { backgroundColor: "hsl(var(--destructive))", color: "hsl(var(--destructive-foreground))" }
-        });
+        showErrorToast("Failed to fetch vehicles");
       } finally {
         setIsLoading(false);
       }
@@ -70,13 +57,11 @@ const TrackingPage = () => {
         if (error) throw error;
         
         if (data) {
-          setTrackingData(data);
+          setTrackingData(data as TrackingData[]);
         }
       } catch (error) {
         console.error('Error fetching tracking history:', error);
-        toast("Failed to fetch tracking history", {
-          style: { backgroundColor: "hsl(var(--destructive))", color: "hsl(var(--destructive-foreground))" }
-        });
+        showErrorToast("Failed to fetch tracking history");
       } finally {
         setIsLoading(false);
       }
@@ -88,18 +73,18 @@ const TrackingPage = () => {
   // Connect to Traccar API and start live tracking
   const startLiveTracking = async () => {
     if (!selectedVehicle) {
-      toast("Please select a vehicle to track");
+      showToast("Please select a vehicle to track");
       return;
     }
     
     setIsLiveTracking(true);
-    toast("Live tracking has been activated for the selected vehicle");
+    showToast("Live tracking has been activated for the selected vehicle");
   };
 
   // Stop live tracking
   const stopLiveTracking = () => {
     setIsLiveTracking(false);
-    toast("Live tracking has been deactivated");
+    showToast("Live tracking has been deactivated");
   };
 
   // Generate map markers from tracking data

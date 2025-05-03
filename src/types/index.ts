@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   email: string;
@@ -11,23 +12,24 @@ export interface Vehicle {
   id: string;
   name: string;
   license_plate: string;
-  model: string;
-  year: number;
-  capacity: number;
-  status: 'available' | 'in_use' | 'maintenance';
-  image_url?: string;
-  daily_rate: number;
+  type: 'bus' | 'elf' | 'hi-ace' | 'car';
+  seats: number;
+  status: 'available' | 'rented' | 'service';
+  photo_url?: string;
+  current_location_lat?: number;
+  current_location_lng?: number;
   created_at: string;
+  updated_at?: string;
 }
 
 export interface Driver {
   id: string;
   full_name: string;
   phone_number: string;
-  license_number?: string;
-  status: 'available' | 'busy' | 'off_duty';
-  avatar_url?: string;
+  photo_url?: string;
+  status: 'active' | 'on-duty' | 'off';
   created_at: string;
+  updated_at?: string;
 }
 
 export interface Rental {
@@ -36,14 +38,15 @@ export interface Rental {
   driver_id: string;
   renter_name: string;
   renter_phone: string;
-  renter_email?: string;
+  destination: string;
   start_date: string;
   end_date: string;
-  destination: string;
-  total_amount: number;
   payment_status: 'paid' | 'pending' | 'cancelled';
-  notes?: string;
   created_at: string;
+  updated_at?: string;
+  // These are optional fields for join queries
+  vehicle?: Vehicle;
+  driver?: Driver;
 }
 
 export interface TrackingData {
@@ -53,4 +56,12 @@ export interface TrackingData {
   longitude: number;
   timestamp: string;
   rental_id?: string;
+}
+
+export type PaymentStatus = 'paid' | 'pending' | 'cancelled';
+
+// Type for NavBar component props
+export interface NavbarProps {
+  toggle?: () => void;
+  isOpen?: boolean;
 }

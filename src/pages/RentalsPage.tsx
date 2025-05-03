@@ -8,10 +8,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { toast } from '@/components/ui/sonner';
 import { format } from 'date-fns';
-import { Rental, Vehicle, Driver, PaymentStatus } from '@/types';
+import { Rental, Vehicle, Driver } from '@/types';
 import { Calendar, MapPin, User, Car } from 'lucide-react';
+import { showToast, showErrorToast, showSuccessToast } from '@/utils/toasts';
 
 const RentalsPage = () => {
   const [rentals, setRentals] = useState<Rental[]>([]);
@@ -30,7 +30,7 @@ const RentalsPage = () => {
     driver_id: '',
     start_date: '',
     end_date: '',
-    payment_status: 'pending' as PaymentStatus
+    payment_status: 'pending' as 'pending' | 'paid' | 'cancelled'
   });
 
   // Fetch data from Supabase
@@ -65,12 +65,12 @@ const RentalsPage = () => {
         if (driversError) throw driversError;
         
         // Update state
-        if (rentalsData) setRentals(rentalsData);
-        if (vehiclesData) setVehicles(vehiclesData);
-        if (driversData) setDrivers(driversData);
+        if (rentalsData) setRentals(rentalsData as Rental[]);
+        if (vehiclesData) setVehicles(vehiclesData as Vehicle[]);
+        if (driversData) setDrivers(driversData as Driver[]);
       } catch (error) {
         console.error('Error fetching rentals:', error);
-        toast("Failed to fetch rentals");
+        showErrorToast("Failed to fetch rentals");
       } finally {
         setIsLoading(false);
       }
@@ -114,12 +114,10 @@ const RentalsPage = () => {
       );
       
       setOpen(false);
-      toast("Rental updated successfully");
+      showSuccessToast("Rental updated successfully");
     } catch (error) {
       console.error('Error updating rental:', error);
-      toast("Failed to update rental", { 
-        variant: "destructive" 
-      });
+      showErrorToast("Failed to update rental");
     }
   };
 
@@ -448,7 +446,7 @@ const RentalsPage = () => {
                 <Label htmlFor="payment_status">Payment Status</Label>
                 <Select 
                   value={formData.payment_status} 
-                  onValueChange={(value) => handleSelectChange('payment_status', value as PaymentStatus)}
+                  onValueChange={(value) => handleSelectChange('payment_status', value as 'pending' | 'paid' | 'cancelled')}
                 >
                   <SelectTrigger id="payment_status">
                     <SelectValue placeholder="Select payment status" />
