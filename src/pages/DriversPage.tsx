@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from '@/components/ui/button';
@@ -22,26 +21,37 @@ const DriversPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [newDriver, setNewDriver] = useState({ full_name: '', phone_number: '' });
+  const [error, setError] = useState<string | null>(null);
 
   // Fetch drivers from Supabase
   useEffect(() => {
     const fetchDrivers = async () => {
       setIsLoading(true);
+      setError(null);
       try {
         const { data, error } = await supabase
           .from('drivers')
           .select('*')
           .order('full_name');
 
-        if (error) throw error;
-        
+        if (error) {
+          console.error('Supabase error:', error);
+          throw new Error(error.message || 'Failed to fetch drivers');
+        }
+
+        console.log('Supabase response:', data);
+
         if (data) {
           console.log('Drivers loaded:', data);
           setDrivers(data as Driver[]);
+        } else {
+          console.log('No data returned from Supabase');
+          setDrivers([]);
         }
-      } catch (error) {
-        console.error('Error fetching drivers:', error);
-        showErrorToast("Failed to fetch drivers");
+      } catch (err: any) {
+        console.error('Error fetching drivers:', err);
+        setError(err.message || 'An unexpected error occurred');
+        showErrorToast(err.message || 'Failed to fetch drivers');
       } finally {
         setIsLoading(false);
       }
@@ -52,7 +62,6 @@ const DriversPage = () => {
 
   // Create a new driver
   const handleCreateDriver = async () => {
-    // Basic validation
     if (!newDriver.full_name || !newDriver.phone_number) {
       showToast("Please fill in all required fields");
       return;
@@ -68,9 +77,13 @@ const DriversPage = () => {
         })
         .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error on insert:', error);
+        throw new Error(error.message || 'Failed to create driver');
+      }
 
-      // Add the new driver to our state
+      console.log('New driver created:', data);
+
       if (data && data[0]) {
         const updatedDrivers = [...drivers];
         updatedDrivers.unshift(data[0] as Driver);
@@ -80,9 +93,9 @@ const DriversPage = () => {
       setNewDriver({ full_name: '', phone_number: '' });
       setIsCreateDialogOpen(false);
       showSuccessToast("Driver created successfully");
-    } catch (error) {
-      console.error('Error creating driver:', error);
-      showErrorToast("Failed to create driver");
+    } catch (err: any) {
+      console.error('Error creating driver:', err);
+      showErrorToast(err.message || 'Failed to create driver');
     }
   };
 
@@ -104,6 +117,10 @@ const DriversPage = () => {
       {isLoading ? (
         <div className="flex justify-center p-8">
           <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+        </div>
+      ) : error ? (
+        <div className="text-red-500 text-center p-4">
+          {error}
         </div>
       ) : (
         <div className="bg-background rounded-md shadow">
