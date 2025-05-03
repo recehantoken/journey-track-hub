@@ -5,9 +5,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/components/ui/sonner';
-import { Vehicle, TrackingData } from '@/types';
+import { Vehicle } from '@/types';
 import Map from '@/components/Map';
 import { Loader2, Car } from 'lucide-react';
+import { showToast, showErrorToast } from '@/utils/toasts';
+
+// Define the TrackingData interface
+interface TrackingData {
+  id: string;
+  vehicle_id: string;
+  latitude: number;
+  longitude: number;
+  timestamp: string;
+  rental_id?: string;
+}
 
 const TrackingPage = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -33,7 +44,7 @@ const TrackingPage = () => {
       } catch (error) {
         console.error('Error fetching vehicles:', error);
         toast("Failed to fetch vehicles", {
-          variant: "destructive"
+          style: { backgroundColor: "hsl(var(--destructive))", color: "hsl(var(--destructive-foreground))" }
         });
       } finally {
         setIsLoading(false);
@@ -64,7 +75,7 @@ const TrackingPage = () => {
       } catch (error) {
         console.error('Error fetching tracking history:', error);
         toast("Failed to fetch tracking history", {
-          variant: "destructive"
+          style: { backgroundColor: "hsl(var(--destructive))", color: "hsl(var(--destructive-foreground))" }
         });
       } finally {
         setIsLoading(false);

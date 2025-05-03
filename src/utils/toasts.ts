@@ -4,8 +4,10 @@ import { toast } from '@/components/ui/sonner';
 /**
  * Helper function to display toast messages consistently throughout the application
  */
-export const showToast = (message: string, options?: { variant?: 'default' | 'destructive' }) => {
-  toast(message, options);
+export const showToast = (message: string, options?: { type?: "default" | "destructive" }) => {
+  toast(message, {
+    ...(options?.type === "destructive" ? { style: { backgroundColor: "hsl(var(--destructive))", color: "hsl(var(--destructive-foreground))" } } : {})
+  });
 };
 
 /**
@@ -13,7 +15,8 @@ export const showToast = (message: string, options?: { variant?: 'default' | 'de
  */
 export const showSuccessToast = (message: string) => {
   toast(message, { 
-    description: message 
+    description: message,
+    style: { backgroundColor: "hsl(var(--success))", color: "hsl(var(--success-foreground))" }
   });
 };
 
@@ -22,7 +25,7 @@ export const showSuccessToast = (message: string) => {
  */
 export const showErrorToast = (message: string) => {
   toast(message, { 
-    variant: "destructive",
-    description: message 
+    description: message,
+    style: { backgroundColor: "hsl(var(--destructive))", color: "hsl(var(--destructive-foreground))" }
   });
 };

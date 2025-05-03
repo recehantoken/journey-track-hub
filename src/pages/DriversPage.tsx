@@ -1,150 +1,84 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { toast } from '@/components/ui/sonner';
+import { Driver } from '@/types';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { toast } from '@/components/ui/sonner';
-import { Driver, DriverStatus } from '@/types';
-import { Phone, User, Calendar } from 'lucide-react';
+import { Phone, User, UserPlus } from 'lucide-react';
 
 const DriversPage = () => {
   const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [open, setOpen] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
-  const [formData, setFormData] = useState<Omit<Driver, 'created_at' | 'updated_at'>>({
-    id: '',
-    full_name: '',
-    phone_number: '',
-    photo_url: null,
-    status: 'active'
-  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [newDriver, setNewDriver] = useState({ full_name: '', phone_number: '' });
 
   // Fetch drivers from Supabase
   useEffect(() => {
     const fetchDrivers = async () => {
+      setIsLoading(true);
       try {
-        setIsLoading(true);
         const { data, error } = await supabase
           .from('drivers')
           .select('*')
-          .order('created_at', { ascending: false });
-        
+          .order('full_name');
+
         if (error) throw error;
-        
-        if (data) {
-          setDrivers(data);
-        }
+        setDrivers(data || []);
       } catch (error) {
         console.error('Error fetching drivers:', error);
         toast("Failed to fetch drivers", {
-          variant: "destructive"
+          style: { backgroundColor: "hsl(var(--destructive))", color: "hsl(var(--destructive-foreground))" }
         });
       } finally {
         setIsLoading(false);
       }
     };
-    
+
     fetchDrivers();
   }, []);
 
-  // Handle form input change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  // Create a new driver
+  const handleCreateDriver = async () => {
+    // Basic validation
+    if (!newDriver.full_name || !newDriver.phone_number) {
+      toast("Please fill in all required fields");
+      return;
+    }
 
-  // Handle select change
-  const handleSelectChange = (name: string, value: DriverStatus) => {
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  // Handle form submission (create/update)
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
     try {
-      if (editMode && selectedDriver) {
-        // Update driver
-        const { error } = await supabase
-          .from('drivers')
-          .update(formData)
-          .eq('id', selectedDriver.id);
-        
-        if (error) throw error;
-        
-        // Update state
-        setDrivers(prev => 
-          prev.map(driver => 
-            driver.id === selectedDriver.id ? { ...driver, ...formData } : driver
-          )
-        );
-        
-        toast("Driver updated successfully");
-      } else {
-        // Create driver
-        const { data, error } = await supabase
-          .from('drivers')
-          .insert([formData])
-          .select();
-        
-        if (error) throw error;
-        
-        if (data) {
-          // Update state
-          setDrivers(prev => [...prev, data[0]]);
-        }
-        
-        toast("Driver created successfully");
-      }
-      
-      setOpen(false);
+      const { data, error } = await supabase
+        .from('drivers')
+        .insert([
+          {
+            full_name: newDriver.full_name,
+            phone_number: newDriver.phone_number,
+            status: 'available'
+          }
+        ])
+        .select();
+
+      if (error) throw error;
+
+      setDrivers([...(data || []), ...drivers]);
+      setNewDriver({ full_name: '', phone_number: '' });
+      setIsCreateDialogOpen(false);
+      toast("Driver created successfully");
     } catch (error) {
-      console.error('Error saving driver:', error);
-      toast("Failed to save driver", {
-        variant: "destructive" 
+      console.error('Error creating driver:', error);
+      toast("Failed to create driver", {
+        style: { backgroundColor: "hsl(var(--destructive))", color: "hsl(var(--destructive-foreground))" }
       });
     }
-  };
-
-  // Handle edit driver
-  const handleEditDriver = (driver: Driver) => {
-    setEditMode(true);
-    setSelectedDriver(driver);
-    setFormData({
-      id: driver.id,
-      full_name: driver.full_name,
-      phone_number: driver.phone_number,
-      photo_url: driver.photo_url,
-      status: driver.status
-    });
-    setOpen(true);
-  };
-
-  // Handle create driver
-  const handleCreateDriver = () => {
-    setEditMode(false);
-    setSelectedDriver(null);
-    setFormData({
-      id: '',
-      full_name: '',
-      phone_number: '',
-      photo_url: null,
-      status: 'active'
-    });
-    setOpen(true);
   };
 
   return (
@@ -152,286 +86,110 @@ const DriversPage = () => {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Drivers</h1>
-          <p className="text-muted-foreground">Manage your company drivers</p>
+          <p className="text-muted-foreground">Manage your driver pool</p>
         </div>
-        <Button onClick={handleCreateDriver}>Add Driver</Button>
+        <div>
+          <Button onClick={() => setIsCreateDialogOpen(true)}>
+            <UserPlus className="mr-2 h-4 w-4" />
+            Add Driver
+          </Button>
+        </div>
       </div>
-      
-      <Tabs defaultValue="all" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="active">Active</TabsTrigger>
-          <TabsTrigger value="on-duty">On Duty</TabsTrigger>
-          <TabsTrigger value="off">Off Duty</TabsTrigger>
-        </TabsList>
-        <TabsContent value="all" className="space-y-4">
-          {isLoading ? (
-            <p>Loading drivers...</p>
-          ) : (
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {drivers.map(driver => (
-                <Card key={driver.id} className="bg-card text-card-foreground shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold leading-none tracking-tight">
-                      {driver.full_name}
-                    </CardTitle>
-                    <CardDescription>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        {driver.phone_number}
-                      </div>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-4">
-                      <Avatar>
-                        {driver.photo_url ? (
-                          <AvatarImage src={driver.photo_url} alt={driver.full_name} />
-                        ) : (
-                          <AvatarFallback>{driver.full_name.charAt(0)}</AvatarFallback>
-                        )}
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium leading-none">Status: {driver.status}</p>
-                        <p className="text-sm text-muted-foreground">
-                          <Calendar className="inline-block h-4 w-4 mr-1" />
-                          Joined on {new Date(driver.created_at || '').toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <Button 
-                      variant="secondary" 
-                      className="mt-4 w-full"
-                      onClick={() => handleEditDriver(driver)}
-                    >
-                      Edit Driver
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-        <TabsContent value="active">
-          {isLoading ? (
-            <p>Loading drivers...</p>
-          ) : (
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {drivers.filter(driver => driver.status === 'active').map(driver => (
-                <Card key={driver.id} className="bg-card text-card-foreground shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold leading-none tracking-tight">
-                      {driver.full_name}
-                    </CardTitle>
-                    <CardDescription>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        {driver.phone_number}
-                      </div>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-4">
-                      <Avatar>
-                        {driver.photo_url ? (
-                          <AvatarImage src={driver.photo_url} alt={driver.full_name} />
-                        ) : (
-                          <AvatarFallback>{driver.full_name.charAt(0)}</AvatarFallback>
-                        )}
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium leading-none">Status: {driver.status}</p>
-                        <p className="text-sm text-muted-foreground">
-                          <Calendar className="inline-block h-4 w-4 mr-1" />
-                          Joined on {new Date(driver.created_at || '').toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <Button 
-                      variant="secondary" 
-                      className="mt-4 w-full"
-                      onClick={() => handleEditDriver(driver)}
-                    >
-                      Edit Driver
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-        <TabsContent value="on-duty">
-          {isLoading ? (
-            <p>Loading drivers...</p>
-          ) : (
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {drivers.filter(driver => driver.status === 'on-duty').map(driver => (
-                <Card key={driver.id} className="bg-card text-card-foreground shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold leading-none tracking-tight">
-                      {driver.full_name}
-                    </CardTitle>
-                    <CardDescription>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        {driver.phone_number}
-                      </div>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-4">
-                      <Avatar>
-                        {driver.photo_url ? (
-                          <AvatarImage src={driver.photo_url} alt={driver.full_name} />
-                        ) : (
-                          <AvatarFallback>{driver.full_name.charAt(0)}</AvatarFallback>
-                        )}
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium leading-none">Status: {driver.status}</p>
-                        <p className="text-sm text-muted-foreground">
-                          <Calendar className="inline-block h-4 w-4 mr-1" />
-                          Joined on {new Date(driver.created_at || '').toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <Button 
-                      variant="secondary" 
-                      className="mt-4 w-full"
-                      onClick={() => handleEditDriver(driver)}
-                    >
-                      Edit Driver
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-        <TabsContent value="off">
-          {isLoading ? (
-            <p>Loading drivers...</p>
-          ) : (
-            <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {drivers.filter(driver => driver.status === 'off').map(driver => (
-                <Card key={driver.id} className="bg-card text-card-foreground shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="text-lg font-semibold leading-none tracking-tight">
-                      {driver.full_name}
-                    </CardTitle>
-                    <CardDescription>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-4 w-4" />
-                        {driver.phone_number}
-                      </div>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-4">
-                      <Avatar>
-                        {driver.photo_url ? (
-                          <AvatarImage src={driver.photo_url} alt={driver.full_name} />
-                        ) : (
-                          <AvatarFallback>{driver.full_name.charAt(0)}</AvatarFallback>
-                        )}
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium leading-none">Status: {driver.status}</p>
-                        <p className="text-sm text-muted-foreground">
-                          <Calendar className="inline-block h-4 w-4 mr-1" />
-                          Joined on {new Date(driver.created_at || '').toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                    <Button 
-                      variant="secondary" 
-                      className="mt-4 w-full"
-                      onClick={() => handleEditDriver(driver)}
-                    >
-                      Edit Driver
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
 
-      {/* Add/Edit Driver Dialog */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{editMode ? 'Edit Driver' : 'Create Driver'}</DialogTitle>
-            <DialogDescription>
-              {editMode ? 'Update driver details here.' : 'Add a new driver to your company.'}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="full_name" className="text-right">
-                <User className="inline-block h-4 w-4 mr-1" />
-                Full Name
-              </Label>
-              <Input 
-                id="full_name" 
-                name="full_name"
-                value={formData.full_name}
-                onChange={handleInputChange}
-                className="col-span-3" 
-                required
-              />
+      {isLoading ? (
+        <div className="flex justify-center p-8">
+          <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
+        </div>
+      ) : (
+        <div className="bg-background rounded-md shadow">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Phone Number</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {drivers.length > 0 ? (
+                drivers.map(driver => (
+                  <TableRow key={driver.id}>
+                    <TableCell className="font-medium">{driver.full_name}</TableCell>
+                    <TableCell>{driver.phone_number}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        driver.status === 'available' 
+                          ? 'bg-green-100 text-green-800' 
+                          : driver.status === 'busy' 
+                            ? 'bg-orange-100 text-orange-800' 
+                            : 'bg-gray-100 text-gray-800'
+                      }`}>
+                        {driver.status.charAt(0).toUpperCase() + driver.status.slice(1)}
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm">View</Button>
+                        <Button variant="outline" size="sm">Edit</Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center py-8">
+                    No drivers found. Add your first driver to get started.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      <AlertDialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Add New Driver</AlertDialogTitle>
+            <AlertDialogDescription>
+              Create a new driver profile. Fill in the details below.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Full Name</Label>
+              <div className="relative">
+                <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="name"
+                  placeholder="John Doe"
+                  className="pl-10"
+                  value={newDriver.full_name}
+                  onChange={(e) => setNewDriver(prev => ({ ...prev, full_name: e.target.value }))}
+                />
+              </div>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="phone_number" className="text-right">
-                <Phone className="inline-block h-4 w-4 mr-1" />
-                Phone Number
-              </Label>
-              <Input
-                type="tel"
-                id="phone_number"
-                name="phone_number"
-                value={formData.phone_number}
-                onChange={handleInputChange}
-                className="col-span-3"
-                required
-              />
+            <div className="grid gap-2">
+              <Label htmlFor="phone">Phone Number</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="phone"
+                  placeholder="+1234567890"
+                  className="pl-10"
+                  value={newDriver.phone_number}
+                  onChange={(e) => setNewDriver(prev => ({ ...prev, phone_number: e.target.value }))}
+                />
+              </div>
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="photo_url" className="text-right">
-                Photo URL
-              </Label>
-              <Input
-                type="url"
-                id="photo_url"
-                name="photo_url"
-                value={formData.photo_url || ''}
-                onChange={handleInputChange}
-                className="col-span-3"
-                placeholder="Optional"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="status" className="text-right">
-                Status
-              </Label>
-              <Select value={formData.status} onValueChange={(value) => handleSelectChange('status', value as DriverStatus)}>
-                <SelectTrigger className="col-span-3">
-                  <SelectValue placeholder="Select a status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="active">Active</SelectItem>
-                  <SelectItem value="on-duty">On Duty</SelectItem>
-                  <SelectItem value="off">Off Duty</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <DialogFooter>
-              <Button type="submit">{editMode ? 'Update' : 'Create'}</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleCreateDriver}>Create Driver</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

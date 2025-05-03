@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/sonner';
+import { showToast } from '@/utils/toasts';
 
 const Sidebar = () => {
   const location = useLocation();

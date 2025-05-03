@@ -13,10 +13,7 @@ interface MainLayoutProps {
 const MainLayout = ({ children }: MainLayoutProps) => {
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
-  const [isOpen, setIsOpen] = useState(false);
   
-  const toggle = () => setIsOpen(!isOpen);
-
   if (isAuthPage) {
     return (
       <div className="min-h-screen bg-background">
@@ -31,7 +28,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       <div className="min-h-screen flex w-full bg-background">
         <Sidebar />
         <div className="flex-1">
-          <Navbar toggle={toggle} isOpen={isOpen} />
+          <Navbar />
           <main className="p-4 md:p-6 max-w-7xl mx-auto">
             {children}
           </main>
