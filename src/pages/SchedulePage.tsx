@@ -99,7 +99,6 @@ const SchedulePage = () => {
       } catch (error) {
         console.error('Error fetching data:', error);
         toast({
-          title: "Error",
           description: "Failed to fetch data",
           variant: "destructive"
         });
@@ -194,20 +193,17 @@ const SchedulePage = () => {
           
           const { data: calendarData, error: calendarError } = await supabase.functions.invoke('google-calendar', {
             method: 'POST',
-            query: { action: 'create' },
-            body: calendarEvent
+            body: { action: 'create', event: calendarEvent }
           });
           
           if (calendarError) throw calendarError;
           
           toast({
-            title: "Calendar Event Created",
             description: "The booking has been added to Google Calendar"
           });
         } catch (error) {
           console.error('Error creating calendar event:', error);
           toast({
-            title: "Calendar Sync Error",
             description: "Failed to sync with Google Calendar",
             variant: "destructive"
           });
@@ -236,7 +232,6 @@ const SchedulePage = () => {
       setOpenDialog(false);
       
       toast({
-        title: "Booking Created",
         description: "New rental has been created successfully"
       });
       
@@ -254,7 +249,6 @@ const SchedulePage = () => {
     } catch (error) {
       console.error('Error saving booking:', error);
       toast({
-        title: "Error",
         description: "Failed to create booking",
         variant: "destructive"
       });
@@ -268,7 +262,7 @@ const SchedulePage = () => {
       // Fetch events from Google Calendar
       const { data, error } = await supabase.functions.invoke('google-calendar', {
         method: 'GET',
-        query: { 
+        body: { 
           action: 'list',
           timeMin: new Date().toISOString(),
           timeMax: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
@@ -279,14 +273,12 @@ const SchedulePage = () => {
       
       if (data && data.success) {
         toast({
-          title: "Calendar Synced",
           description: `${data.events.length} events synchronized with Google Calendar`
         });
       }
     } catch (error) {
       console.error('Error syncing with Google Calendar:', error);
       toast({
-        title: "Sync Error",
         description: "Failed to sync with Google Calendar",
         variant: "destructive"
       });

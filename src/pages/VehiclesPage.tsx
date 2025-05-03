@@ -1,25 +1,15 @@
-
 import { useState, useEffect } from 'react';
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { 
-  Card, 
-  CardContent
-} from '@/components/ui/card';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Vehicle, VehicleType, VehicleStatus } from '@/types';
-import { Plus, Edit, Trash2, Car, Settings, Clock } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/sonner';
-import { supabase } from "@/integrations/supabase/client";
+import { Vehicle, VehicleStatus, VehicleType } from '@/types';
+import { Car } from 'lucide-react';
 
 const VehiclesPage = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -55,9 +45,7 @@ const VehiclesPage = () => {
       } catch (error) {
         console.error('Error fetching vehicles:', error);
         toast({
-          title: "Error",
-          description: "Failed to fetch vehicles",
-          variant: "destructive"
+          description: "Failed to fetch vehicles"
         });
       }
     };
@@ -118,13 +106,11 @@ const VehiclesPage = () => {
       
       setVehicles(vehicles.filter(vehicle => vehicle.id !== id));
       toast({
-        title: "Vehicle deleted",
-        description: "Vehicle has been removed from the system",
+        description: "Vehicle deleted"
       });
     } catch (error) {
       console.error('Error deleting vehicle:', error);
       toast({
-        title: "Error",
         description: "Failed to delete vehicle. It may be referenced in rentals.",
         variant: "destructive"
       });
@@ -171,8 +157,7 @@ const VehiclesPage = () => {
         ));
         
         toast({
-          title: "Vehicle updated",
-          description: "Vehicle details have been updated successfully",
+          description: "Vehicle updated"
         });
       } else {
         // Add new vehicle
@@ -194,8 +179,7 @@ const VehiclesPage = () => {
           setVehicles([...vehicles, data[0]]);
           
           toast({
-            title: "Vehicle added",
-            description: "New vehicle has been added to the system",
+            description: "Vehicle added"
           });
         }
       }
@@ -204,7 +188,6 @@ const VehiclesPage = () => {
     } catch (error) {
       console.error('Error saving vehicle:', error);
       toast({
-        title: "Error",
         description: "Failed to save vehicle",
         variant: "destructive"
       });

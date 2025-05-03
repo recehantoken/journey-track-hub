@@ -1,5 +1,6 @@
+
 import { Link, useLocation } from 'react-router-dom';
-import { Car, User, Calendar, MapPin, Home } from 'lucide-react';
+import { Car, User, Calendar, MapPin, Home, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Sidebar as SidebarComponent,
@@ -27,13 +28,14 @@ const Sidebar = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      toast("Signed out", {
+      toast({
         description: "You have been successfully signed out."
       });
     } catch (error) {
       console.error("Error signing out:", error);
-      toast("Error", {
-        description: "Failed to sign out. Please try again."
+      toast({
+        description: "Failed to sign out. Please try again.",
+        variant: "destructive"
       });
     }
   };
@@ -84,10 +86,26 @@ const Sidebar = () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
+                <SidebarMenuButton asChild className={isActive("/schedule") ? "bg-primary/10 text-primary" : ""}>
+                  <Link to="/schedule">
+                    <Calendar className="h-5 w-5" />
+                    <span>Schedule</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
                 <SidebarMenuButton asChild className={isActive("/tracking") ? "bg-primary/10 text-primary" : ""}>
                   <Link to="/tracking">
                     <MapPin className="h-5 w-5" />
                     <span>GPS Tracking</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className={isActive("/settings") ? "bg-primary/10 text-primary" : ""}>
+                  <Link to="/settings">
+                    <Settings className="h-5 w-5" />
+                    <span>Settings</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

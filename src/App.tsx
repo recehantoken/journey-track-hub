@@ -13,6 +13,8 @@ import VehiclesPage from "./pages/VehiclesPage";
 import DriversPage from "./pages/DriversPage";
 import RentalsPage from "./pages/RentalsPage";
 import TrackingPage from "./pages/TrackingPage";
+import SchedulePage from "./pages/SchedulePage";
+import SettingsPage from "./pages/SettingsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import NotFound from "./pages/NotFound";
@@ -62,6 +64,8 @@ const AppRoutes = () => {
       <Route path="/drivers" element={<MainLayout><ProtectedRoute><DriversPage /></ProtectedRoute></MainLayout>} />
       <Route path="/rentals" element={<MainLayout><ProtectedRoute><RentalsPage /></ProtectedRoute></MainLayout>} />
       <Route path="/tracking" element={<MainLayout><ProtectedRoute><TrackingPage /></ProtectedRoute></MainLayout>} />
+      <Route path="/schedule" element={<MainLayout><ProtectedRoute><SchedulePage /></ProtectedRoute></MainLayout>} />
+      <Route path="/settings" element={<MainLayout><ProtectedRoute><SettingsPage /></ProtectedRoute></MainLayout>} />
       
       {/* Catch all */}
       <Route path="*" element={<MainLayout><NotFound /></MainLayout>} />

@@ -95,7 +95,6 @@ const Map = ({ center, markers = [], zoom = 13, liveTracking = false, refreshInt
       } catch (error) {
         console.error('Error fetching vehicles:', error);
         toast({
-          title: "Error",
           description: "Failed to fetch vehicle data",
           variant: "destructive"
         });
@@ -113,7 +112,7 @@ const Map = ({ center, markers = [], zoom = 13, liveTracking = false, refreshInt
       try {
         const { data, error } = await supabase.functions.invoke('traccar-api', {
           method: 'GET',
-          query: { endpoint: 'positions' }
+          body: { endpoint: 'positions' }
         });
         
         if (error) {

@@ -1,12 +1,12 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/components/ui/sonner';
+import { Vehicle } from '@/types';
 import Map from '@/components/Map';
-import { Vehicle, TrackingData } from '@/types';
+import { Loader2, Car } from 'lucide-react';
 
 const TrackingPage = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -32,9 +32,7 @@ const TrackingPage = () => {
       } catch (error) {
         console.error('Error fetching vehicles:', error);
         toast({
-          title: "Error",
-          description: "Failed to fetch vehicles",
-          variant: "destructive"
+          description: "Failed to fetch vehicles"
         });
       } finally {
         setIsLoading(false);
@@ -65,9 +63,7 @@ const TrackingPage = () => {
       } catch (error) {
         console.error('Error fetching tracking history:', error);
         toast({
-          title: "Error",
-          description: "Failed to fetch tracking history",
-          variant: "destructive"
+          description: "Failed to fetch tracking history"
         });
       } finally {
         setIsLoading(false);
@@ -81,9 +77,7 @@ const TrackingPage = () => {
   const startLiveTracking = async () => {
     if (!selectedVehicle) {
       toast({
-        title: "Error",
-        description: "Please select a vehicle to track",
-        variant: "destructive"
+        description: "Please select a vehicle to track"
       });
       return;
     }
