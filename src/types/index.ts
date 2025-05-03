@@ -74,6 +74,16 @@ export interface TrackingData {
   rental_id?: string;
 }
 
+export interface Setting {
+  id: string;
+  key: string;
+  value: string | null;
+  description: string | null;
+  category: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface GoogleCalendarEvent {
   id?: string;
   summary: string;
@@ -105,4 +115,3 @@ export type VehicleType = 'bus' | 'elf' | 'hi-ace' | 'car';
 export type VehicleStatus = 'available' | 'rented' | 'service';
 export type DriverStatus = 'active' | 'on-duty' | 'off';
 export type PaymentStatus = 'pending' | 'paid' | 'cancelled';
-

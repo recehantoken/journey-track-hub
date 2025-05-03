@@ -28,15 +28,10 @@ const Sidebar = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
-      toast({
-        description: "You have been successfully signed out."
-      });
+      toast("You have been successfully signed out.");
     } catch (error) {
       console.error("Error signing out:", error);
-      toast({
-        description: "Failed to sign out. Please try again.",
-        variant: "destructive"
-      });
+      toast("Failed to sign out. Please try again.");
     }
   };
 

@@ -1,15 +1,16 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { toast } from '@/components/ui/sonner';
+import { Badge } from '@/components/ui/badge';
 import { Vehicle, VehicleStatus, VehicleType } from '@/types';
-import { Car } from 'lucide-react';
+import { Car, Plus, Edit, Trash2, Settings, Clock } from 'lucide-react';
 
 const VehiclesPage = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -44,9 +45,7 @@ const VehiclesPage = () => {
         }
       } catch (error) {
         console.error('Error fetching vehicles:', error);
-        toast({
-          description: "Failed to fetch vehicles"
-        });
+        toast("Failed to fetch vehicles");
       }
     };
     
@@ -105,15 +104,10 @@ const VehiclesPage = () => {
       if (error) throw error;
       
       setVehicles(vehicles.filter(vehicle => vehicle.id !== id));
-      toast({
-        description: "Vehicle deleted"
-      });
+      toast("Vehicle deleted");
     } catch (error) {
       console.error('Error deleting vehicle:', error);
-      toast({
-        description: "Failed to delete vehicle. It may be referenced in rentals.",
-        variant: "destructive"
-      });
+      toast("Failed to delete vehicle. It may be referenced in rentals.");
     }
   };
 
@@ -156,9 +150,7 @@ const VehiclesPage = () => {
           vehicle.id === currentVehicle.id ? { ...vehicle, ...formData } : vehicle
         ));
         
-        toast({
-          description: "Vehicle updated"
-        });
+        toast("Vehicle updated");
       } else {
         // Add new vehicle
         const { data, error } = await supabase
@@ -177,20 +169,14 @@ const VehiclesPage = () => {
         
         if (data) {
           setVehicles([...vehicles, data[0]]);
-          
-          toast({
-            description: "Vehicle added"
-          });
+          toast("Vehicle added");
         }
       }
       
       setOpenDialog(false);
     } catch (error) {
       console.error('Error saving vehicle:', error);
-      toast({
-        description: "Failed to save vehicle",
-        variant: "destructive"
-      });
+      toast("Failed to save vehicle");
     }
   };
 
@@ -307,6 +293,9 @@ const VehiclesPage = () => {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>{currentVehicle ? 'Edit Vehicle' : 'Add New Vehicle'}</DialogTitle>
+            <DialogDescription>
+              {currentVehicle ? 'Update the vehicle details below.' : 'Enter the details for your new vehicle.'}
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleFormSubmit} className="space-y-4">
             <div className="grid gap-4">
@@ -321,7 +310,7 @@ const VehiclesPage = () => {
                 />
               </div>
               
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="type">Vehicle Type</Label>
                   <Select 
@@ -392,14 +381,14 @@ const VehiclesPage = () => {
               </div>
             </div>
             
-            <div className="flex justify-end space-x-2">
+            <DialogFooter className="flex justify-end space-x-2">
               <Button type="button" variant="outline" onClick={() => setOpenDialog(false)}>
                 Cancel
               </Button>
               <Button type="submit">
                 {currentVehicle ? 'Update Vehicle' : 'Add Vehicle'}
               </Button>
-            </div>
+            </DialogFooter>
           </form>
         </DialogContent>
       </Dialog>

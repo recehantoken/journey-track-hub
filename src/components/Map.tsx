@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { supabase } from "@/integrations/supabase/client";
-import { Vehicle } from '@/types';
+import { Vehicle, TrackingData } from '@/types';
 import { toast } from '@/components/ui/sonner';
 
 interface MapProps {
@@ -94,10 +94,7 @@ const Map = ({ center, markers = [], zoom = 13, liveTracking = false, refreshInt
         }
       } catch (error) {
         console.error('Error fetching vehicles:', error);
-        toast({
-          description: "Failed to fetch vehicle data",
-          variant: "destructive"
-        });
+        toast("Failed to fetch vehicle data");
       }
     };
     
@@ -111,7 +108,6 @@ const Map = ({ center, markers = [], zoom = 13, liveTracking = false, refreshInt
     const fetchTraccarData = async () => {
       try {
         const { data, error } = await supabase.functions.invoke('traccar-api', {
-          method: 'GET',
           body: { endpoint: 'positions' }
         });
         
