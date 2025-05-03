@@ -8,13 +8,18 @@ export interface User {
   created_at: string;
 }
 
+export type VehicleType = 'bus' | 'elf' | 'hi-ace' | 'car';
+export type VehicleStatus = 'available' | 'rented' | 'service';
+export type DriverStatus = 'active' | 'on-duty' | 'off';
+export type PaymentStatus = 'paid' | 'pending' | 'cancelled';
+
 export interface Vehicle {
   id: string;
   name: string;
   license_plate: string;
-  type: 'bus' | 'elf' | 'hi-ace' | 'car';
+  type: VehicleType;
   seats: number;
-  status: 'available' | 'rented' | 'service';
+  status: VehicleStatus;
   photo_url?: string;
   current_location_lat?: number;
   current_location_lng?: number;
@@ -27,7 +32,7 @@ export interface Driver {
   full_name: string;
   phone_number: string;
   photo_url?: string;
-  status: 'active' | 'on-duty' | 'off';
+  status: DriverStatus;
   created_at: string;
   updated_at?: string;
 }
@@ -41,7 +46,7 @@ export interface Rental {
   destination: string;
   start_date: string;
   end_date: string;
-  payment_status: 'paid' | 'pending' | 'cancelled';
+  payment_status: PaymentStatus;
   created_at: string;
   updated_at?: string;
   // These are optional fields for join queries
@@ -58,7 +63,15 @@ export interface TrackingData {
   rental_id?: string;
 }
 
-export type PaymentStatus = 'paid' | 'pending' | 'cancelled';
+export interface Setting {
+  id: string;
+  key: string;
+  value: string | null;
+  description: string | null;
+  category: string;
+  created_at: string | null;
+  updated_at: string | null;
+}
 
 // Type for NavBar component props
 export interface NavbarProps {

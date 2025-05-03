@@ -32,6 +32,7 @@ export default function Home() {
   const fetchDashboardData = async () => {
     try {
       setLoading(true);
+      console.log("Fetching dashboard data...");
       
       // Fetch vehicles
       const { data: vehiclesData, error: vehiclesError } = await supabase
@@ -40,6 +41,7 @@ export default function Home() {
         .order('created_at', { ascending: false });
         
       if (vehiclesError) throw vehiclesError;
+      console.log("Vehicles data:", vehiclesData);
       
       // Fetch drivers
       const { data: driversData, error: driversError } = await supabase
@@ -48,6 +50,7 @@ export default function Home() {
         .order('created_at', { ascending: false });
         
       if (driversError) throw driversError;
+      console.log("Drivers data:", driversData);
       
       // Fetch rentals
       const { data: rentalsData, error: rentalsError } = await supabase
@@ -56,6 +59,7 @@ export default function Home() {
         .order('created_at', { ascending: false });
         
       if (rentalsError) throw rentalsError;
+      console.log("Rentals data:", rentalsData);
       
       // Calculate stats
       const availableVehicles = vehiclesData ? vehiclesData.filter(v => v.status === 'available').length : 0;
@@ -71,9 +75,9 @@ export default function Home() {
         : 0;
       
       // Type assertion to match our interface definitions
-      setVehicles(vehiclesData as Vehicle[] || []);
-      setDrivers(driversData as Driver[] || []);
-      setRentals(rentalsData as Rental[] || []);
+      if (vehiclesData) setVehicles(vehiclesData as Vehicle[]);
+      if (driversData) setDrivers(driversData as Driver[]);
+      if (rentalsData) setRentals(rentalsData as Rental[]);
       
       setStats({
         totalVehicles: vehiclesData ? vehiclesData.length : 0,

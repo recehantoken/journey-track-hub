@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Driver } from '@/types';
+import { Driver, DriverStatus } from '@/types';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -35,8 +35,10 @@ const DriversPage = () => {
 
         if (error) throw error;
         
-        // Use type assertion to handle Supabase data
-        setDrivers(data as Driver[] || []);
+        if (data) {
+          console.log('Drivers loaded:', data);
+          setDrivers(data as Driver[]);
+        }
       } catch (error) {
         console.error('Error fetching drivers:', error);
         showErrorToast("Failed to fetch drivers");
@@ -62,19 +64,19 @@ const DriversPage = () => {
         .insert({
           full_name: newDriver.full_name,
           phone_number: newDriver.phone_number,
-          status: 'active'
+          status: 'active' as DriverStatus
         })
         .select();
 
       if (error) throw error;
 
       // Add the new driver to our state
-      const newDrivers = [...drivers];
       if (data && data[0]) {
-        newDrivers.unshift(data[0] as Driver);
+        const updatedDrivers = [...drivers];
+        updatedDrivers.unshift(data[0] as Driver);
+        setDrivers(updatedDrivers);
       }
       
-      setDrivers(newDrivers);
       setNewDriver({ full_name: '', phone_number: '' });
       setIsCreateDialogOpen(false);
       showSuccessToast("Driver created successfully");

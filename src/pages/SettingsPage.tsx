@@ -30,6 +30,7 @@ const SettingsPage = () => {
       if (error) throw error;
       
       if (data) {
+        console.log('Settings loaded:', data);
         // Convert array of settings to an object for easier access
         const settingsObject: Record<string, string> = {};
         data.forEach((setting: Setting) => {

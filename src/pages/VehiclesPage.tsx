@@ -40,8 +40,9 @@ const VehiclesPage = () => {
         if (error) throw error;
         
         if (data) {
-          setVehicles(data);
-          setFilteredVehicles(data);
+          console.log('Vehicles loaded:', data);
+          setVehicles(data as Vehicle[]);
+          setFilteredVehicles(data as Vehicle[]);
         }
       } catch (error) {
         console.error('Error fetching vehicles:', error);
@@ -168,7 +169,7 @@ const VehiclesPage = () => {
         if (error) throw error;
         
         if (data) {
-          setVehicles([...vehicles, data[0]]);
+          setVehicles([...vehicles, data[0] as Vehicle]);
           toast("Vehicle added");
         }
       }
