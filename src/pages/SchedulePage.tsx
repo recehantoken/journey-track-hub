@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Calendar as CalendarIcon, Plus } from 'lucide-react';
@@ -23,7 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/components/ui/sonner';
 import { cn } from '@/lib/utils';
-import { Driver, Rental, Vehicle, GoogleCalendarEvent, Setting } from '@/types';
+import { Driver, Rental, Vehicle, GoogleCalendarEvent, Setting, PaymentStatus } from '@/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 const SchedulePage = () => {
@@ -42,7 +41,7 @@ const SchedulePage = () => {
     driver_id: '',
     start_date: formatISO(new Date()),
     end_date: formatISO(new Date()),
-    payment_status: 'pending',
+    payment_status: 'pending' as PaymentStatus,
   });
   
   useEffect(() => {
@@ -95,6 +94,48 @@ const SchedulePage = () => {
     fetchData();
   }, []);
   
+  // Function to seed sample data
+  const seedSampleData = async () => {
+    try {
+      // Sample rental data
+      const sampleRental = {
+        renter_name: 'John Doe',
+        renter_phone: '+1234567890',
+        destination: 'Airport',
+        vehicle_id: vehicles[0]?.id || '',
+        driver_id: drivers[0]?.id || '',
+        start_date: formatISO(new Date()),
+        end_date: formatISO(new Date(Date.now() + 3600000 * 24)),
+        payment_status: 'pending' as PaymentStatus
+      };
+      
+      // Insert sample rental
+      const { data, error } = await supabase
+        .from('rentals')
+        .insert(sampleRental)
+        .select();
+        
+      if (error) throw error;
+      
+      if (data) {
+        toast("Sample data created successfully");
+        // Refresh rentals
+        const { data: rentalsData } = await supabase
+          .from('rentals')
+          .select('*, vehicle:vehicles(*), driver:drivers(*)');
+          
+        if (rentalsData) {
+          setRentals(rentalsData);
+        }
+      }
+    } catch (error) {
+      console.error('Error seeding data:', error);
+      toast("Failed to create sample data", {
+        variant: "destructive"
+      });
+    }
+  };
+  
   // Handle booking form submit
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,14 +144,27 @@ const SchedulePage = () => {
       // Insert new rental
       const { data, error } = await supabase
         .from('rentals')
-        .insert([formData])
+        .insert({
+          renter_name: formData.renter_name,
+          renter_phone: formData.renter_phone,
+          destination: formData.destination,
+          vehicle_id: formData.vehicle_id,
+          driver_id: formData.driver_id,
+          start_date: formData.start_date,
+          end_date: formData.end_date,
+          payment_status: formData.payment_status as PaymentStatus
+        })
         .select();
         
       if (error) throw error;
       
       if (data) {
         // Add rental to local state
-        setRentals([...rentals, { ...data[0], vehicle: vehicles.find(v => v.id === data[0].vehicle_id), driver: drivers.find(d => d.id === data[0].driver_id) }]);
+        setRentals([...rentals, { 
+          ...data[0], 
+          vehicle: vehicles.find(v => v.id === data[0].vehicle_id), 
+          driver: drivers.find(d => d.id === data[0].driver_id) 
+        }]);
         
         // Update vehicle status
         await supabase
@@ -157,7 +211,9 @@ const SchedulePage = () => {
       }
     } catch (error) {
       console.error('Error creating booking:', error);
-      toast("Failed to create booking");
+      toast("Failed to create booking", {
+        variant: "destructive"
+      });
     }
   };
   
@@ -180,7 +236,7 @@ const SchedulePage = () => {
       driver_id: '',
       start_date: formatISO(new Date()),
       end_date: formatISO(new Date()),
-      payment_status: 'pending',
+      payment_status: 'pending' as PaymentStatus,
     });
   };
   
@@ -230,7 +286,9 @@ const SchedulePage = () => {
       toast("Booking deleted successfully");
     } catch (error) {
       console.error('Error deleting booking:', error);
-      toast("Failed to delete booking");
+      toast("Failed to delete booking", {
+        variant: "destructive"
+      });
     }
   };
   
@@ -241,10 +299,17 @@ const SchedulePage = () => {
           <h1 className="text-3xl font-bold">Schedule</h1>
           <p className="text-muted-foreground">Manage your vehicle rental schedule</p>
         </div>
-        <Button onClick={() => setOpenBookingDialog(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add New Booking
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setOpenBookingDialog(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add New Booking
+          </Button>
+          {vehicles.length > 0 && drivers.length > 0 && (
+            <Button variant="outline" onClick={seedSampleData}>
+              Add Sample Data
+            </Button>
+          )}
+        </div>
       </div>
       
       {loading ? (

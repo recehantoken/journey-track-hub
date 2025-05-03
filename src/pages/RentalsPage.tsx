@@ -70,9 +70,7 @@ const RentalsPage = () => {
         if (driversData) setDrivers(driversData);
       } catch (error) {
         console.error('Error fetching rentals:', error);
-        toast({
-          description: "Failed to fetch rentals"
-        });
+        toast("Failed to fetch rentals");
       } finally {
         setIsLoading(false);
       }
@@ -116,14 +114,11 @@ const RentalsPage = () => {
       );
       
       setOpen(false);
-      toast({
-        description: "Rental updated successfully"
-      });
+      toast("Rental updated successfully");
     } catch (error) {
       console.error('Error updating rental:', error);
-      toast({
-        description: "Failed to update rental",
-        variant: "destructive"
+      toast("Failed to update rental", { 
+        variant: "destructive" 
       });
     }
   };
@@ -191,7 +186,7 @@ const RentalsPage = () => {
                     </div>
                     <div>
                       <Label>Payment Status</Label>
-                      <Badge variant={rental.payment_status === 'paid' ? 'success' : rental.payment_status === 'cancelled' ? 'destructive' : 'secondary'}>
+                      <Badge variant={rental.payment_status === 'paid' ? 'default' : rental.payment_status === 'cancelled' ? 'destructive' : 'secondary'}>
                         {rental.payment_status}
                       </Badge>
                     </div>
@@ -237,7 +232,7 @@ const RentalsPage = () => {
                     </div>
                     <div>
                       <Label>Payment Status</Label>
-                      <Badge variant={rental.payment_status === 'paid' ? 'success' : rental.payment_status === 'cancelled' ? 'destructive' : 'secondary'}>
+                      <Badge variant={rental.payment_status === 'paid' ? 'default' : rental.payment_status === 'cancelled' ? 'destructive' : 'secondary'}>
                         {rental.payment_status}
                       </Badge>
                     </div>
@@ -283,7 +278,7 @@ const RentalsPage = () => {
                     </div>
                     <div>
                       <Label>Payment Status</Label>
-                      <Badge variant={rental.payment_status === 'paid' ? 'success' : rental.payment_status === 'cancelled' ? 'destructive' : 'secondary'}>
+                      <Badge variant={rental.payment_status === 'paid' ? 'default' : rental.payment_status === 'cancelled' ? 'destructive' : 'secondary'}>
                         {rental.payment_status}
                       </Badge>
                     </div>
@@ -329,7 +324,7 @@ const RentalsPage = () => {
                     </div>
                     <div>
                       <Label>Payment Status</Label>
-                      <Badge variant={rental.payment_status === 'paid' ? 'success' : rental.payment_status === 'cancelled' ? 'destructive' : 'secondary'}>
+                      <Badge variant={rental.payment_status === 'paid' ? 'default' : rental.payment_status === 'cancelled' ? 'destructive' : 'secondary'}>
                         {rental.payment_status}
                       </Badge>
                     </div>

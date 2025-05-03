@@ -43,8 +43,7 @@ const DriversPage = () => {
         }
       } catch (error) {
         console.error('Error fetching drivers:', error);
-        toast({
-          description: "Failed to fetch drivers",
+        toast("Failed to fetch drivers", {
           variant: "destructive"
         });
       } finally {
@@ -93,9 +92,7 @@ const DriversPage = () => {
           )
         );
         
-        toast({
-          description: "Driver updated successfully"
-        });
+        toast("Driver updated successfully");
       } else {
         // Create driver
         const { data, error } = await supabase
@@ -110,17 +107,14 @@ const DriversPage = () => {
           setDrivers(prev => [...prev, data[0]]);
         }
         
-        toast({
-          description: "Driver created successfully"
-        });
+        toast("Driver created successfully");
       }
       
       setOpen(false);
     } catch (error) {
       console.error('Error saving driver:', error);
-      toast({
-        description: "Failed to save driver",
-        variant: "destructive"
+      toast("Failed to save driver", {
+        variant: "destructive" 
       });
     }
   };

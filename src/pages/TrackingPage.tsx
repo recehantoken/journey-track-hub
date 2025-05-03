@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/components/ui/sonner';
-import { Vehicle } from '@/types';
+import { Vehicle, TrackingData } from '@/types';
 import Map from '@/components/Map';
 import { Loader2, Car } from 'lucide-react';
 
@@ -31,8 +32,8 @@ const TrackingPage = () => {
         }
       } catch (error) {
         console.error('Error fetching vehicles:', error);
-        toast({
-          description: "Failed to fetch vehicles"
+        toast("Failed to fetch vehicles", {
+          variant: "destructive"
         });
       } finally {
         setIsLoading(false);
@@ -62,8 +63,8 @@ const TrackingPage = () => {
         }
       } catch (error) {
         console.error('Error fetching tracking history:', error);
-        toast({
-          description: "Failed to fetch tracking history"
+        toast("Failed to fetch tracking history", {
+          variant: "destructive"
         });
       } finally {
         setIsLoading(false);
@@ -76,26 +77,18 @@ const TrackingPage = () => {
   // Connect to Traccar API and start live tracking
   const startLiveTracking = async () => {
     if (!selectedVehicle) {
-      toast({
-        description: "Please select a vehicle to track"
-      });
+      toast("Please select a vehicle to track");
       return;
     }
     
     setIsLiveTracking(true);
-    toast({
-      title: "Live Tracking",
-      description: "Live tracking has been activated for the selected vehicle"
-    });
+    toast("Live tracking has been activated for the selected vehicle");
   };
 
   // Stop live tracking
   const stopLiveTracking = () => {
     setIsLiveTracking(false);
-    toast({
-      title: "Live Tracking Stopped",
-      description: "Live tracking has been deactivated"
-    });
+    toast("Live tracking has been deactivated");
   };
 
   // Generate map markers from tracking data
