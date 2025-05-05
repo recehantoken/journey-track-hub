@@ -108,11 +108,12 @@ const LoginPage = () => {
               </div>
             </CardFooter>
           </form>
-        </Card>
-        
-        <div className="mt-4 text-center text-sm text-black font-bold">
+          <div className="mt-4 text-center text-sm text-black">
           © {new Date().getFullYear()} Moretrip Rental Hub. All rights reserved.
         </div>
+        </Card>
+        
+
       </div>
     </div>
   );
