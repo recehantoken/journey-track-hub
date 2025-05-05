@@ -53,7 +53,7 @@ const LoginPage = () => {
   return (
     <div 
       className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center" 
-      style={{ backgroundImage: "url('/public/login-back.webp')" }}
+      style={{ backgroundImage: "url('/login-back.webp')" }}
     >
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-4">
