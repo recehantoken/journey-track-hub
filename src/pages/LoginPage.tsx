@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -37,7 +36,7 @@ const LoginPage = () => {
       }
       
       toast("Login successful", {
-        description: "Welcome to JourneyTrack Hub!",
+        description: "Welcome to Rental Hub!",
       });
       
       // Redirect to dashboard
@@ -52,7 +51,10 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-b from-blue-50 to-white">
+    <div 
+      className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center" 
+      style={{ backgroundImage: "url('/public/background-login.jpg')" }}
+    >
       <div className="w-full max-w-md">
         <div className="flex justify-center mb-4">
           <div className="bg-navy-800 p-3 rounded-full">
@@ -109,7 +111,7 @@ const LoginPage = () => {
         </Card>
         
         <div className="mt-4 text-center text-sm text-muted-foreground">
-          &copy; {new Date().getFullYear()} Moretrip Rental Hub. All rights reserved.
+          © {new Date().getFullYear()} Moretrip Rental Hub. All rights reserved.
         </div>
       </div>
     </div>
