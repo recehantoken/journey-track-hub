@@ -13,6 +13,7 @@ const NewRentalPage = () => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     renter_name: '',
     renter_phone: '',
@@ -29,21 +30,33 @@ const NewRentalPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
+      setError(null);
       try {
+        console.log('Fetching vehicles...');
         const { data: vehiclesData, error: vehiclesError } = await supabase
           .from('vehicles')
           .select('*');
-        if (vehiclesError) throw vehiclesError;
+        if (vehiclesError) {
+          console.error('Vehicles error:', vehiclesError);
+          throw vehiclesError;
+        }
+        console.log('Vehicles fetched:', vehiclesData);
 
+        console.log('Fetching drivers...');
         const { data: driversData, error: driversError } = await supabase
           .from('drivers')
           .select('*');
-        if (driversError) throw driversError;
+        if (driversError) {
+          console.error('Drivers error:', driversError);
+          throw driversError;
+        }
+        console.log('Drivers fetched:', driversData);
 
         setVehicles(vehiclesData as Vehicle[] || []);
         setDrivers(driversData as Driver[] || []);
       } catch (error) {
         console.error('Error fetching data:', error);
+        setError('Failed to load vehicles and drivers. Please try again.');
         showErrorToast('Failed to fetch vehicles and drivers');
       } finally {
         setIsLoading(false);
@@ -85,26 +98,45 @@ const NewRentalPage = () => {
     }
 
     try {
+      console.log('Submitting rental:', formData);
       const { error } = await supabase.from('rentals').insert({
         renter_name: formData.renter_name,
         renter_phone: formData.renter_phone,
         destination: formData.destination,
         vehicle_id: formData.vehicle_id,
-        driver_id: formData.driver_id || null, // Allow optional driver
+        driver_id: formData.driver_id || null,
         start_date: formData.start_date,
         end_date: formData.end_date,
         payment_status: formData.payment_status,
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Insert error:', error);
+        throw error;
+      }
 
       showSuccessToast('Rental created successfully');
-      navigate('/rentals'); // Redirect to Rentals page after creation
+      navigate('/rentals');
     } catch (error) {
       console.error('Error creating rental:', error);
       showErrorToast('Failed to create rental');
     }
   };
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-red-600">Error</h1>
+        <p className="text-sm sm:text-base text-muted-foreground mt-2">{error}</p>
+        <Button
+          onClick={() => window.location.reload()}
+          className="mt-4 w-full sm:w-auto"
+        >
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -119,7 +151,12 @@ const NewRentalPage = () => {
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="flex justify-center py-8">Loading...</div>
+            <div className="flex justify-center py-8">
+              <div className="flex flex-col items-center gap-2">
+                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+                <p>Loading...</p>
+              </div>
+            </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4">

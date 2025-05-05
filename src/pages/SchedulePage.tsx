@@ -38,25 +38,25 @@ const SchedulePage = () => {
 
       try {
         // Fetch rentals
-        const { data: rentalsData, error: rentalsError } = await supabase
+        const { data: rentalsData, error: vehiclesError } = await supabase
           .from('rentals')
           .select('*');
 
-        if (rentalsError) throw rentalsError;
+        if (vehiclesError) throw vehiclesError;
         
         // Fetch vehicles
-        const { data: vehiclesData, error: vehiclesError } = await supabase
+        const { data: vehiclesData, error: driversError } = await supabase
           .from('vehicles')
           .select('*');
 
-        if (vehiclesError) throw vehiclesError;
+        if (driversError) throw driversError;
 
         // Fetch drivers
-        const { data: driversData, error: driversError } = await supabase
+        const { data: driversData, error: rentalsError } = await supabase
           .from('drivers')
           .select('*');
 
-        if (driversError) throw driversError;
+        if (rentalsError) throw rentalsError;
 
         setRentals(rentalsData as Rental[] || []);
         setVehicles(vehiclesData as Vehicle[] || []);
