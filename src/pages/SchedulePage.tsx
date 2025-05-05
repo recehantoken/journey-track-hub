@@ -6,11 +6,6 @@ import { Calendar as CalendarIcon, Download, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import {
   Table,
   TableBody,
   TableCaption,
@@ -85,7 +80,7 @@ const SchedulePage = () => {
     const startDate = new Date(rentalStart);
     startDate.setHours(0, 0, 0, 0);
     
-    const endDate = new Date(rentalEnd);
+    the endDate = new Date(rentalEnd);
     endDate.setHours(0, 0, 0, 0);
     
     return (selectedDate >= startDate && selectedDate <= endDate);
@@ -139,8 +134,8 @@ const SchedulePage = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <Card className="lg:col-span-1">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-1 min-w-[300px]">
           <CardHeader>
             <CardTitle className="text-lg sm:text-xl">Date Selection</CardTitle>
           </CardHeader>
@@ -149,7 +144,7 @@ const SchedulePage = () => {
               mode="single"
               selected={date}
               onSelect={setDate}
-              className="rounded-md border w-full"
+              className="rounded-md border w-full max-w-full"
             />
             <div className="mt-4">
               <p className="text-sm">Selected date:</p>
@@ -160,7 +155,7 @@ const SchedulePage = () => {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-3">
+        <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle className="text-lg sm:text-xl">Scheduled Rentals</CardTitle>
           </CardHeader>
