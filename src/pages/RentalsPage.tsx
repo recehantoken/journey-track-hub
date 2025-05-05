@@ -138,14 +138,14 @@ const RentalsPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div>
-        <h1 className="text-3xl font-bold">Rentals</h1>
-        <p className="text-muted-foreground">Manage your vehicle rentals</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">Rentals</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">Manage your vehicle rentals</p>
       </div>
 
       <Tabs defaultValue="all" className="space-y-4">
-        <TabsList>
+        <TabsList className="flex flex-wrap">
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="pending">Pending</TabsTrigger>
           <TabsTrigger value="paid">Paid</TabsTrigger>
@@ -155,22 +155,22 @@ const RentalsPage = () => {
           {isLoading ? (
             <p>Loading rentals...</p>
           ) : (
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {rentals.map((rental) => (
                 <Card key={rental.id} className="bg-card text-card-foreground shadow-sm">
                   <CardHeader>
-                    <CardTitle className="text-lg font-semibold leading-none tracking-tight">
+                    <CardTitle className="text-base sm:text-lg font-semibold leading-none tracking-tight">
                       {rental.renter_name}
                     </CardTitle>
                     <CardDescription>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 text-sm">
                         <Calendar className="h-4 w-4" />
                         {format(new Date(rental.start_date), 'MMM d, yyyy')} -{' '}
                         {format(new Date(rental.end_date), 'MMM d, yyyy')}
                       </div>
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-2">
+                  <CardContent className="space-y-2 text-sm sm:text-base">
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4" />
                       <span>{rental.destination}</span>
@@ -197,7 +197,9 @@ const RentalsPage = () => {
                         {rental.payment_status}
                       </Badge>
                     </div>
-                    <Button onClick={() => handleOpenDialog(rental)}>View Details</Button>
+                    <Button onClick={() => handleOpenDialog(rental)} className="w-full sm:w-auto">
+                      View Details
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
@@ -208,24 +210,24 @@ const RentalsPage = () => {
           {isLoading ? (
             <p>Loading rentals...</p>
           ) : (
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {rentals
                 .filter((rental) => rental.payment_status === 'pending')
                 .map((rental) => (
                   <Card key={rental.id} className="bg-card text-card-foreground shadow-sm">
                     <CardHeader>
-                      <CardTitle className="text-lg font-semibold leading-none tracking-tight">
+                      <CardTitle className="text-base sm:text-lg font-semibold leading-none tracking-tight">
                         {rental.renter_name}
                       </CardTitle>
                       <CardDescription>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 text-sm">
                           <Calendar className="h-4 w-4" />
                           {format(new Date(rental.start_date), 'MMM d, yyyy')} -{' '}
                           {format(new Date(rental.end_date), 'MMM d, yyyy')}
                         </div>
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-2">
+                    <CardContent className="space-y-2 text-sm sm:text-base">
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4" />
                         <span>{rental.destination}</span>
@@ -252,7 +254,9 @@ const RentalsPage = () => {
                           {rental.payment_status}
                         </Badge>
                       </div>
-                      <Button onClick={() => handleOpenDialog(rental)}>View Details</Button>
+                      <Button onClick={() => handleOpenDialog(rental)} className="w-full sm:w-auto">
+                        View Details
+                      </Button>
                     </CardContent>
                   </Card>
                 ))}
@@ -263,24 +267,24 @@ const RentalsPage = () => {
           {isLoading ? (
             <p>Loading rentals...</p>
           ) : (
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {rentals
                 .filter((rental) => rental.payment_status === 'paid')
                 .map((rental) => (
                   <Card key={rental.id} className="bg-card text-card-foreground shadow-sm">
                     <CardHeader>
-                      <CardTitle className="text-lg font-semibold leading-none tracking-tight">
+                      <CardTitle className="text-base sm:text-lg font-semibold leading-none tracking-tight">
                         {rental.renter_name}
                       </CardTitle>
                       <CardDescription>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 text-sm">
                           <Calendar className="h-4 w-4" />
                           {format(new Date(rental.start_date), 'MMM d, yyyy')} -{' '}
                           {format(new Date(rental.end_date), 'MMM d, yyyy')}
                         </div>
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-2">
+                    <CardContent className="space-y-2 text-sm sm:text-base">
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4" />
                         <span>{rental.destination}</span>
@@ -307,7 +311,9 @@ const RentalsPage = () => {
                           {rental.payment_status}
                         </Badge>
                       </div>
-                      <Button onClick={() => handleOpenDialog(rental)}>View Details</Button>
+                      <Button onClick={() => handleOpenDialog(rental)} className="w-full sm:w-auto">
+                        View Details
+                      </Button>
                     </CardContent>
                   </Card>
                 ))}
@@ -318,24 +324,24 @@ const RentalsPage = () => {
           {isLoading ? (
             <p>Loading rentals...</p>
           ) : (
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
               {rentals
                 .filter((rental) => rental.payment_status === 'cancelled')
                 .map((rental) => (
                   <Card key={rental.id} className="bg-card text-card-foreground shadow-sm">
                     <CardHeader>
-                      <CardTitle className="text-lg font-semibold leading-none tracking-tight">
+                      <CardTitle className="text-base sm:text-lg font-semibold leading-none tracking-tight">
                         {rental.renter_name}
                       </CardTitle>
                       <CardDescription>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 text-sm">
                           <Calendar className="h-4 w-4" />
                           {format(new Date(rental.start_date), 'MMM d, yyyy')} -{' '}
                           {format(new Date(rental.end_date), 'MMM d, yyyy')}
                         </div>
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="space-y-2">
+                    <CardContent className="space-y-2 text-sm sm:text-base">
                       <div className="flex items-center gap-2">
                         <MapPin className="h-4 w-4" />
                         <span>{rental.destination}</span>
@@ -362,7 +368,9 @@ const RentalsPage = () => {
                           {rental.payment_status}
                         </Badge>
                       </div>
-                      <Button onClick={() => handleOpenDialog(rental)}>View Details</Button>
+                      <Button onClick={() => handleOpenDialog(rental)} className="w-full sm:w-auto">
+                        View Details
+                      </Button>
                     </CardContent>
                   </Card>
                 ))}
@@ -372,7 +380,7 @@ const RentalsPage = () => {
       </Tabs>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+        <DialogContent className="max-w-full sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Rental Details</DialogTitle>
             <DialogDescription>
@@ -381,7 +389,7 @@ const RentalsPage = () => {
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid gap-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="renter_name">Renter Name</Label>
                   <Input
@@ -454,7 +462,7 @@ const RentalsPage = () => {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="grid gap-2">
                   <Label htmlFor="start_date">Start Date</Label>
                   <Input
@@ -499,8 +507,8 @@ const RentalsPage = () => {
               </div>
             </div>
 
-            <DialogFooter>
-              <Button type="submit">Save changes</Button>
+            <DialogFooter className="flex flex-col sm:flex-row gap-2">
+              <Button type="submit" className="w-full sm:w-auto">Save changes</Button>
             </DialogFooter>
           </form>
         </DialogContent>

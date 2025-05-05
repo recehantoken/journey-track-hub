@@ -16,7 +16,7 @@ import SchedulePage from "./pages/SchedulePage";
 import SettingsPage from "./pages/SettingsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import NewRentalPage from "./pages/NewRentalPage"; // New import
+import NewRentalPage from "./pages/NewRentalPage";
 import NotFound from "./pages/NotFound";
 
 // Create a client

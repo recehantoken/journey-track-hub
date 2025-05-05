@@ -117,20 +117,20 @@ const SchedulePage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold">Schedule</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold">Schedule</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
             Manage your fleet schedule and rental bookings
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExportCalendar}>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button variant="outline" onClick={handleExportCalendar} className="w-full sm:w-auto">
             <Download className="mr-2 h-4 w-4" />
             Export to Calendar
           </Button>
-          <Button asChild>
+          <Button asChild className="w-full sm:w-auto">
             <Link to="/rentals/new">
               <Plus className="mr-2 h-4 w-4" />
               New Rental
@@ -142,18 +142,18 @@ const SchedulePage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <Card className="lg:col-span-1">
           <CardHeader>
-            <CardTitle>Date Selection</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">Date Selection</CardTitle>
           </CardHeader>
           <CardContent className="pt-0">
             <Calendar
               mode="single"
               selected={date}
               onSelect={setDate}
-              className="rounded-md border"
+              className="rounded-md border w-full"
             />
             <div className="mt-4">
-              <p>Selected date:</p>
-              <p className="font-semibold">
+              <p className="text-sm">Selected date:</p>
+              <p className="font-semibold text-sm sm:text-base">
                 {date ? format(date, 'PPP') : 'None selected'}
               </p>
             </div>
@@ -162,7 +162,7 @@ const SchedulePage = () => {
 
         <Card className="lg:col-span-3">
           <CardHeader>
-            <CardTitle>Scheduled Rentals</CardTitle>
+            <CardTitle className="text-lg sm:text-xl">Scheduled Rentals</CardTitle>
           </CardHeader>
           <CardContent>
             {isLoading ? (
@@ -173,53 +173,55 @@ const SchedulePage = () => {
                 </div>
               </div>
             ) : filteredRentals.length > 0 ? (
-              <Table>
-                <TableCaption>
-                  List of rentals for {date ? format(date, 'PPP') : 'selected date'}
-                </TableCaption>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Vehicle</TableHead>
-                    <TableHead>Driver</TableHead>
-                    <TableHead>Destination</TableHead>
-                    <TableHead>Start Date</TableHead>
-                    <TableHead>End Date</TableHead>
-                    <TableHead>Status</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRentals.map((rental) => (
-                    <TableRow key={rental.id}>
-                      <TableCell>
-                        <div className="font-medium">{rental.renter_name}</div>
-                        <div className="text-sm text-muted-foreground">{rental.renter_phone}</div>
-                      </TableCell>
-                      <TableCell>{getVehicleName(rental.vehicle_id)}</TableCell>
-                      <TableCell>{getDriverName(rental.driver_id)}</TableCell>
-                      <TableCell>{rental.destination}</TableCell>
-                      <TableCell>{format(new Date(rental.start_date), 'PPP')}</TableCell>
-                      <TableCell>{format(new Date(rental.end_date), 'PPP')}</TableCell>
-                      <TableCell>
-                        <div className={cn(
-                          "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold",
-                          rental.payment_status === "paid" 
-                            ? "bg-green-100 text-green-800" 
-                            : rental.payment_status === "pending" 
-                              ? "bg-yellow-100 text-yellow-800" 
-                              : "bg-red-100 text-red-800"
-                        )}>
-                          {rental.payment_status.charAt(0).toUpperCase() + rental.payment_status.slice(1)}
-                        </div>
-                      </TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableCaption>
+                    List of rentals for {date ? format(date, 'PPP') : 'selected date'}
+                  </TableCaption>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Customer</TableHead>
+                      <TableHead>Vehicle</TableHead>
+                      <TableHead>Driver</TableHead>
+                      <TableHead>Destination</TableHead>
+                      <TableHead>Start Date</TableHead>
+                      <TableHead>End Date</TableHead>
+                      <TableHead>Status</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredRentals.map((rental) => (
+                      <TableRow key={rental.id}>
+                        <TableCell>
+                          <div className="font-medium">{rental.renter_name}</div>
+                          <div className="text-sm text-muted-foreground">{rental.renter_phone}</div>
+                        </TableCell>
+                        <TableCell>{getVehicleName(rental.vehicle_id)}</TableCell>
+                        <TableCell>{getDriverName(rental.driver_id)}</TableCell>
+                        <TableCell>{rental.destination}</TableCell>
+                        <TableCell>{format(new Date(rental.start_date), 'PPP')}</TableCell>
+                        <TableCell>{format(new Date(rental.end_date), 'PPP')}</TableCell>
+                        <TableCell>
+                          <div className={cn(
+                            "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold",
+                            rental.payment_status === "paid" 
+                              ? "bg-green-100 text-green-800" 
+                              : rental.payment_status === "pending" 
+                                ? "bg-yellow-100 text-yellow-800" 
+                                : "bg-red-100 text-red-800"
+                          )}>
+                            {rental.payment_status.charAt(0).toUpperCase() + rental.payment_status.slice(1)}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-64">
-                <p className="text-muted-foreground">No rentals scheduled for this date.</p>
-                <Button className="mt-4" asChild>
+                <p className="text-muted-foreground text-sm sm:text-base">No rentals scheduled for this date.</p>
+                <Button className="mt-4 w-full sm:w-auto" asChild>
                   <Link to="/rentals/new">
                     <Plus className="mr-2 h-4 w-4" />
                     Create New Rental
@@ -233,7 +235,7 @@ const SchedulePage = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Upcoming Rentals (Next 7 Days)</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">Upcoming Rentals (Next 7 Days)</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -245,7 +247,7 @@ const SchedulePage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <p className="text-muted-foreground col-span-full">Feature coming soon.</p>
+              <p className="text-muted-foreground col-span-full text-sm sm:text-base">Feature coming soon.</p>
             </div>
           )}
         </CardContent>

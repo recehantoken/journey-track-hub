@@ -107,15 +107,15 @@ const NewRentalPage = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div>
-        <h1 className="text-3xl font-bold">Create New Rental</h1>
-        <p className="text-muted-foreground">Add a new rental booking to the system</p>
+        <h1 className="text-2xl sm:text-3xl font-bold">Create New Rental</h1>
+        <p className="text-muted-foreground text-sm sm:text-base">Add a new rental booking to the system</p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>New Rental Details</CardTitle>
+          <CardTitle className="text-lg sm:text-xl">New Rental Details</CardTitle>
         </CardHeader>
         <CardContent>
           {isLoading ? (
@@ -123,7 +123,7 @@ const NewRentalPage = () => {
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid gap-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="renter_name">Renter Name</Label>
                     <Input
@@ -132,6 +132,7 @@ const NewRentalPage = () => {
                       value={formData.renter_name}
                       onChange={handleInputChange}
                       required
+                      className="h-10"
                     />
                   </div>
                   <div className="grid gap-2">
@@ -142,6 +143,7 @@ const NewRentalPage = () => {
                       value={formData.renter_phone}
                       onChange={handleInputChange}
                       required
+                      className="h-10"
                     />
                   </div>
                 </div>
@@ -152,7 +154,7 @@ const NewRentalPage = () => {
                     value={formData.vehicle_id}
                     onValueChange={(value) => handleSelectChange('vehicle_id', value)}
                   >
-                    <SelectTrigger id="vehicle_id">
+                    <SelectTrigger id="vehicle_id" className="h-10">
                       <SelectValue placeholder="Select vehicle" />
                     </SelectTrigger>
                     <SelectContent>
@@ -171,7 +173,7 @@ const NewRentalPage = () => {
                     value={formData.driver_id}
                     onValueChange={(value) => handleSelectChange('driver_id', value)}
                   >
-                    <SelectTrigger id="driver_id">
+                    <SelectTrigger id="driver_id" className="h-10">
                       <SelectValue placeholder="Select driver" />
                     </SelectTrigger>
                     <SelectContent>
@@ -193,10 +195,11 @@ const NewRentalPage = () => {
                     value={formData.destination}
                     onChange={handleInputChange}
                     required
+                    className="h-10"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="start_date">Start Date</Label>
                     <Input
@@ -206,6 +209,7 @@ const NewRentalPage = () => {
                       value={formData.start_date}
                       onChange={handleInputChange}
                       required
+                      className="h-10"
                     />
                   </div>
                   <div className="grid gap-2">
@@ -217,6 +221,7 @@ const NewRentalPage = () => {
                       value={formData.end_date}
                       onChange={handleInputChange}
                       required
+                      className="h-10"
                     />
                   </div>
                 </div>
@@ -229,7 +234,7 @@ const NewRentalPage = () => {
                       handleSelectChange('payment_status', value as 'pending' | 'paid' | 'cancelled')
                     }
                   >
-                    <SelectTrigger id="payment_status">
+                    <SelectTrigger id="payment_status" className="h-10">
                       <SelectValue placeholder="Select payment status" />
                     </SelectTrigger>
                     <SelectContent>
@@ -241,9 +246,9 @@ const NewRentalPage = () => {
                 </div>
               </div>
 
-              <div className="flex gap-2">
-                <Button type="submit">Create Rental</Button>
-                <Button variant="outline" onClick={() => navigate('/rentals')}>
+              <div className="flex flex-col sm:flex-row gap-2">
+                <Button type="submit" className="w-full sm:w-auto">Create Rental</Button>
+                <Button variant="outline" onClick={() => navigate('/rentals')} className="w-full sm:w-auto">
                   Cancel
                 </Button>
               </div>
