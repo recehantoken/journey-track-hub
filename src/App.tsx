@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,6 +16,7 @@ import SchedulePage from "./pages/SchedulePage";
 import SettingsPage from "./pages/SettingsPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import NewRentalPage from "./pages/NewRentalPage"; // New import
 import NotFound from "./pages/NotFound";
 
 // Create a client
@@ -63,6 +63,7 @@ const AppRoutes = () => {
       <Route path="/vehicles" element={<MainLayout><ProtectedRoute><VehiclesPage /></ProtectedRoute></MainLayout>} />
       <Route path="/drivers" element={<MainLayout><ProtectedRoute><DriversPage /></ProtectedRoute></MainLayout>} />
       <Route path="/rentals" element={<MainLayout><ProtectedRoute><RentalsPage /></ProtectedRoute></MainLayout>} />
+      <Route path="/rentals/new" element={<MainLayout><ProtectedRoute><NewRentalPage /></ProtectedRoute></MainLayout>} />
       <Route path="/tracking" element={<MainLayout><ProtectedRoute><TrackingPage /></ProtectedRoute></MainLayout>} />
       <Route path="/schedule" element={<MainLayout><ProtectedRoute><SchedulePage /></ProtectedRoute></MainLayout>} />
       <Route path="/settings" element={<MainLayout><ProtectedRoute><SettingsPage /></ProtectedRoute></MainLayout>} />

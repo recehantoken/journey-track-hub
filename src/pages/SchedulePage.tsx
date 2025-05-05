@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -132,7 +131,7 @@ const SchedulePage = () => {
             Export to Calendar
           </Button>
           <Button asChild>
-            <Link to="/rentals/new">
+            <Link to="/rentals?create=true">
               <Plus className="mr-2 h-4 w-4" />
               New Rental
             </Link>
@@ -221,7 +220,7 @@ const SchedulePage = () => {
               <div className="flex flex-col items-center justify-center h-64">
                 <p className="text-muted-foreground">No rentals scheduled for this date.</p>
                 <Button className="mt-4" asChild>
-                  <Link to="/rentals/new">
+                  <Link to="/rentals?create=true">
                     <Plus className="mr-2 h-4 w-4" />
                     Create New Rental
                   </Link>
@@ -246,7 +245,6 @@ const SchedulePage = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {/* Add upcoming rentals cards here */}
               <p className="text-muted-foreground col-span-full">Feature coming soon.</p>
             </div>
           )}
