@@ -131,7 +131,7 @@ const SchedulePage = () => {
             Export to Calendar
           </Button>
           <Button asChild>
-            <Link to="/rentals?create=true">
+            <Link to="/rentals/new">
               <Plus className="mr-2 h-4 w-4" />
               New Rental
             </Link>
@@ -220,7 +220,7 @@ const SchedulePage = () => {
               <div className="flex flex-col items-center justify-center h-64">
                 <p className="text-muted-foreground">No rentals scheduled for this date.</p>
                 <Button className="mt-4" asChild>
-                  <Link to="/rentals?create=true">
+                  <Link to="/rentals/new">
                     <Plus className="mr-2 h-4 w-4" />
                     Create New Rental
                   </Link>
