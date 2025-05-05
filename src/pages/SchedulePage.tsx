@@ -33,25 +33,25 @@ const SchedulePage = () => {
 
       try {
         // Fetch rentals
-        const { data: rentalsData, error: vehiclesError } = await supabase
+        const { data: rentalsData, error: rentalsError } = await supabase
           .from('rentals')
           .select('*');
 
-        if (vehiclesError) throw vehiclesError;
+        if (rentalsError) throw rentalsError;
         
         // Fetch vehicles
-        const { data: vehiclesData, error: driversError } = await supabase
+        const { data: vehiclesData, error: vehiclesError } = await supabase
           .from('vehicles')
           .select('*');
 
-        if (driversError) throw driversError;
+        if (vehiclesError) throw vehiclesError;
 
         // Fetch drivers
-        const { data: driversData, error: rentalsError } = await supabase
+        const { data: driversData, error: driversError } = await supabase
           .from('drivers')
           .select('*');
 
-        if (rentalsError) throw rentalsError;
+        if (driversError) throw driversError;
 
         setRentals(rentalsData as Rental[] || []);
         setVehicles(vehiclesData as Vehicle[] || []);
@@ -80,10 +80,10 @@ const SchedulePage = () => {
     const startDate = new Date(rentalStart);
     startDate.setHours(0, 0, 0, 0);
     
-    the endDate = new Date(rentalEnd);
+    const endDate = new Date(rentalEnd);
     endDate.setHours(0, 0, 0, 0);
     
-    return (selectedDate >= startDate && selectedDate <= endDate);
+    return selectedDate >= startDate && selectedDate <= endDate;
   });
 
   const handleExportCalendar = async () => {
