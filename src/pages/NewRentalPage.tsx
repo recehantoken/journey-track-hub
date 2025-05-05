@@ -17,11 +17,13 @@ const NewRentalPage = () => {
   const [formData, setFormData] = useState({
     renter_name: '',
     renter_phone: '',
+    renter_address: '',
     destination: '',
     vehicle_id: '',
     driver_id: '',
     start_date: '',
     end_date: '',
+    payment_price: '',
     payment_status: 'pending' as 'pending' | 'paid' | 'cancelled',
   });
   const navigate = useNavigate();
@@ -82,13 +84,21 @@ const NewRentalPage = () => {
     if (
       !formData.renter_name ||
       !formData.renter_phone ||
+      !formData.renter_address ||
       !formData.destination ||
       !formData.vehicle_id ||
       !formData.driver_id ||
       !formData.start_date ||
-      !formData.end_date
+      !formData.end_date ||
+      !formData.payment_price
     ) {
       showErrorToast('Please fill in all required fields');
+      return;
+    }
+
+    const paymentPrice = parseFloat(formData.payment_price);
+    if (isNaN(paymentPrice) || paymentPrice <= 0) {
+      showErrorToast('Payment price must be a positive number');
       return;
     }
 
@@ -103,11 +113,13 @@ const NewRentalPage = () => {
       const rentalData = {
         renter_name: formData.renter_name,
         renter_phone: formData.renter_phone,
+        renter_address: formData.renter_address,
         destination: formData.destination,
         vehicle_id: formData.vehicle_id,
         driver_id: formData.driver_id,
         start_date: formData.start_date,
         end_date: formData.end_date,
+        payment_price: paymentPrice,
         payment_status: formData.payment_status,
       };
       const { error } = await supabase.from('rentals').insert(rentalData);
@@ -197,6 +209,30 @@ const NewRentalPage = () => {
                 </div>
 
                 <div className="grid gap-2">
+                  <Label htmlFor="renter_address">Renter Address</Label>
+                  <Input
+                    id="renter_address"
+                    name="renter_address"
+                    value={formData.renter_address}
+                    onChange={handleInputChange}
+                    required
+                    className="h-10"
+                  />
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="destination">Destination</Label>
+                  <Input
+                    id="destination"
+                    name="destination"
+                    value={formData.destination}
+                    onChange={handleInputChange}
+                    required
+                    className="h-10"
+                  />
+                </div>
+
+                <div className="grid gap-2">
                   <Label htmlFor="vehicle_id">Vehicle</Label>
                   <Select
                     value={formData.vehicle_id}
@@ -236,18 +272,6 @@ const NewRentalPage = () => {
                   </Select>
                 </div>
 
-                <div className="grid gap-2">
-                  <Label htmlFor="destination">Destination</Label>
-                  <Input
-                    id="destination"
-                    name="destination"
-                    value={formData.destination}
-                    onChange={handleInputChange}
-                    required
-                    className="h-10"
-                  />
-                </div>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="start_date">Start Date</Label>
@@ -273,6 +297,21 @@ const NewRentalPage = () => {
                       className="h-10"
                     />
                   </div>
+                </div>
+
+                <div className="grid gap-2">
+                  <Label htmlFor="payment_price">Payment Price ($)</Label>
+                  <Input
+                    id="payment_price"
+                    name="payment_price"
+                    type="number"
+                    step="0.01"
+                    min="0.01"
+                    value={formData.payment_price}
+                    onChange={handleInputChange}
+                    required
+                    className="h-10"
+                  />
                 </div>
 
                 <div className="grid gap-2">
