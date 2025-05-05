@@ -1,4 +1,3 @@
-
 export interface User {
   id: string;
   email: string;
@@ -43,10 +42,12 @@ export interface Rental {
   driver_id: string;
   renter_name: string;
   renter_phone: string;
+  renter_address: string;
   destination: string;
   start_date: string;
   end_date: string;
-  payment_status: PaymentStatus;
+  payment_price: number;
+  payment_status: string;
   created_at: string;
   updated_at?: string;
   // These are optional fields for join queries

@@ -70,7 +70,9 @@ export type Database = {
           driver_id: string
           end_date: string
           id: string
+          payment_price: number
           payment_status: Database["public"]["Enums"]["payment_status"]
+          renter_address: string
           renter_name: string
           renter_phone: string
           start_date: string
@@ -83,7 +85,9 @@ export type Database = {
           driver_id: string
           end_date: string
           id?: string
+          payment_price?: number
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          renter_address?: string
           renter_name: string
           renter_phone: string
           start_date: string
@@ -96,7 +100,9 @@ export type Database = {
           driver_id?: string
           end_date?: string
           id?: string
+          payment_price?: number
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          renter_address?: string
           renter_name?: string
           renter_phone?: string
           start_date?: string

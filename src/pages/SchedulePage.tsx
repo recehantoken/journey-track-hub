@@ -175,11 +175,13 @@ const SchedulePage = () => {
                   <TableHeader>
                     <TableRow>
                       <TableHead>Customer</TableHead>
+                      <TableHead>Address</TableHead>
                       <TableHead>Vehicle</TableHead>
                       <TableHead>Driver</TableHead>
                       <TableHead>Destination</TableHead>
                       <TableHead>Start Date</TableHead>
                       <TableHead>End Date</TableHead>
+                      <TableHead>Price ($)</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -190,11 +192,13 @@ const SchedulePage = () => {
                           <div className="font-medium">{rental.renter_name}</div>
                           <div className="text-sm text-muted-foreground">{rental.renter_phone}</div>
                         </TableCell>
+                        <TableCell>{rental.renter_address}</TableCell>
                         <TableCell>{getVehicleName(rental.vehicle_id)}</TableCell>
                         <TableCell>{getDriverName(rental.driver_id)}</TableCell>
                         <TableCell>{rental.destination}</TableCell>
                         <TableCell>{format(new Date(rental.start_date), 'PPP')}</TableCell>
                         <TableCell>{format(new Date(rental.end_date), 'PPP')}</TableCell>
+                        <TableCell>{rental.payment_price.toFixed(2)}</TableCell>
                         <TableCell>
                           <div className={cn(
                             "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold",
