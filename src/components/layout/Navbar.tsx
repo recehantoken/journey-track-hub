@@ -1,8 +1,6 @@
-
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User as UserIcon } from "lucide-react";
+import { User as UserIcon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/sonner";
 import {
@@ -13,13 +11,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
-interface NavbarProps {
-  toggle: () => void;
-  isOpen: boolean;
-}
-
-const Navbar = ({ toggle, isOpen }: NavbarProps) => {
+const Navbar = () => {
   const { user, signOut } = useAuth();
   
   const handleSignOut = async () => {
@@ -30,6 +24,7 @@ const Navbar = ({ toggle, isOpen }: NavbarProps) => {
       });
     } catch (error) {
       console.error("Error signing out:", error);
+      toast("Failed to sign out. Please try again.");
     }
   };
 
@@ -38,13 +33,7 @@ const Navbar = ({ toggle, isOpen }: NavbarProps) => {
       <div className="flex items-center justify-between">
         {/* Left side */}
         <div className="flex items-center">
-          <button
-            className="block lg:hidden mr-2"
-            onClick={toggle}
-            aria-label="Toggle Menu"
-          >
-            {isOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          <SidebarTrigger className="block lg:hidden mr-2" />
           <Link to="/" className="flex items-center">
             <span className="text-xl font-bold text-navy-800">
               Moretrip Rentals

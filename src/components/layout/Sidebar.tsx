@@ -1,4 +1,3 @@
-
 import { Link, useLocation } from 'react-router-dom';
 import { Car, User, Calendar, MapPin, Home, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,7 +15,6 @@ import {
 } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/sonner';
-import { showToast } from '@/utils/toasts';
 
 const Sidebar = () => {
   const location = useLocation();
@@ -37,7 +35,7 @@ const Sidebar = () => {
   };
 
   return (
-    <SidebarComponent>
+    <SidebarComponent collapsible="offcanvas">
       <SidebarHeader className="flex items-center justify-between px-4 h-16">
         <Link to="/" className="flex items-center gap-2">
           <Car className="h-6 w-6 text-primary" />
