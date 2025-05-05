@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Calendar as CalendarIcon, Download, Plus } from 'lucide-react';
+import { Download, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -90,8 +90,7 @@ const SchedulePage = () => {
     try {
       showToast("Exporting calendar data...");
       
-      // In a real app, here you would trigger the Google Calendar integration
-      // For now, we'll just simulate success
+      // Simulate Google Calendar integration
       setTimeout(() => {
         showSuccessToast("Calendar exported successfully");
       }, 2000);
@@ -108,7 +107,7 @@ const SchedulePage = () => {
 
   const getDriverName = (driverId: string) => {
     const driver = drivers.find(d => d.id === driverId);
-    return driver ? driver.full_name : 'No driver assigned';
+    return driver ? driver.full_name : 'Unknown';
   };
 
   return (

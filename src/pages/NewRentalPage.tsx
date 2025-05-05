@@ -19,7 +19,7 @@ const NewRentalPage = () => {
     renter_phone: '',
     destination: '',
     vehicle_id: '',
-    driver_id: 'none', // Default to 'none' for no driver
+    driver_id: '',
     start_date: '',
     end_date: '',
     payment_status: 'pending' as 'pending' | 'paid' | 'cancelled',
@@ -78,12 +78,13 @@ const NewRentalPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Basic validation
+    // Validation
     if (
       !formData.renter_name ||
       !formData.renter_phone ||
       !formData.destination ||
       !formData.vehicle_id ||
+      !formData.driver_id ||
       !formData.start_date ||
       !formData.end_date
     ) {
@@ -104,7 +105,7 @@ const NewRentalPage = () => {
         renter_phone: formData.renter_phone,
         destination: formData.destination,
         vehicle_id: formData.vehicle_id,
-        driver_id: formData.driver_id === 'none' ? null : formData.driver_id,
+        driver_id: formData.driver_id,
         start_date: formData.start_date,
         end_date: formData.end_date,
         payment_status: formData.payment_status,
@@ -200,6 +201,7 @@ const NewRentalPage = () => {
                   <Select
                     value={formData.vehicle_id}
                     onValueChange={(value) => handleSelectChange('vehicle_id', value)}
+                    required
                   >
                     <SelectTrigger id="vehicle_id" className="h-10">
                       <SelectValue placeholder="Select vehicle" />
@@ -215,16 +217,16 @@ const NewRentalPage = () => {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="driver_id">Driver (Optional)</Label>
+                  <Label htmlFor="driver_id">Driver</Label>
                   <Select
                     value={formData.driver_id}
                     onValueChange={(value) => handleSelectChange('driver_id', value)}
+                    required
                   >
                     <SelectTrigger id="driver_id" className="h-10">
                       <SelectValue placeholder="Select driver" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="none">No driver</SelectItem>
                       {drivers.map((driver) => (
                         <SelectItem key={driver.id} value={driver.id}>
                           {driver.full_name} - {driver.phone_number}
@@ -280,6 +282,7 @@ const NewRentalPage = () => {
                     onValueChange={(value) =>
                       handleSelectChange('payment_status', value as 'pending' | 'paid' | 'cancelled')
                     }
+                    required
                   >
                     <SelectTrigger id="payment_status" className="h-10">
                       <SelectValue placeholder="Select payment status" />

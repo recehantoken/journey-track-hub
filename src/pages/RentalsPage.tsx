@@ -1,76 +1,73 @@
 import { useState, useEffect } from 'react';
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { Plus } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import { Rental, Vehicle, Driver } from '@/types';
-import { Calendar, MapPin, User, Car } from 'lucide-react';
-import { showToast, showErrorToast, showSuccessToast } from '@/utils/toasts';
+import { showErrorToast } from '@/utils/toasts';
 
 const RentalsPage = () => {
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [open, setOpen] = useState(false);
-  const [selectedRental, setSelectedRental] = useState<Rental | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const [formData, setFormData] = useState({
-    id: '',
-    renter_name: '',
-    renter_phone: '',
-    destination: '',
-    vehicle_id: '',
-    driver_id: '',
-    start_date: '',
-    end_date: '',
-    payment_status: 'pending' as 'pending' | 'paid' | 'cancelled',
-  });
-
-  // Fetch data from Supabase
+  // Fetch rentals, vehicles, and drivers
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
+      setError(null);
       try {
-        // Fetch rentals
+        console.log('Fetching rentals...');
         const { data: rentalsData, error: rentalsError } = await supabase
           .from('rentals')
-          .select(`
-            *,
-            vehicle:vehicles(*),
-            driver:drivers(*)
-          `)
-          .order('created_at', { ascending: false });
+          .select('*');
+        if (rentalsError) {
+          console.error('Rentals error:', rentalsError);
+          throw rentalsError;
+        }
+        console.log('Rentals fetched:', rentalsData);
 
-        if (rentalsError) throw rentalsError;
-
-        // Fetch vehicles
+        console.log('Fetching vehicles...');
         const { data: vehiclesData, error: vehiclesError } = await supabase
           .from('vehicles')
           .select('*');
+        if (vehiclesError) {
+          console.error('Vehicles error:', vehiclesError);
+          throw vehiclesError;
+        }
+        console.log('Vehicles fetched:', vehiclesData);
 
-        if (vehiclesError) throw vehiclesError;
-
-        // Fetch drivers
+        console.log('Fetching drivers...');
         const { data: driversData, error: driversError } = await supabase
           .from('drivers')
           .select('*');
+        if (driversError) {
+          console.error('Drivers error:', driversError);
+          throw driversError;
+        }
+        console.log('Drivers fetched:', driversData);
 
-        if (driversError) throw driversError;
-
-        // Update state
-        if (rentalsData) setRentals(rentalsData as Rental[]);
-        if (vehiclesData) setVehicles(vehiclesData as Vehicle[]);
-        if (driversData) setDrivers(driversData as Driver[]);
+        setRentals(rentalsData as Rental[] || []);
+        setVehicles(vehiclesData as Vehicle[] || []);
+        setDrivers(driversData as Driver[] || []);
       } catch (error) {
-        console.error('Error fetching rentals:', error);
-        showErrorToast("Failed to fetch rentals");
+        console.error('Error fetching data:', error);
+        setError('Failed to load rentals. Please try again.');
+        showErrorToast('Failed to load rentals');
       } finally {
         setIsLoading(false);
       }
@@ -79,440 +76,119 @@ const RentalsPage = () => {
     fetchData();
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const getVehicleName = (vehicleId: string) => {
+    const vehicle = vehicles.find((v) => v.id === vehicleId);
+    return vehicle ? `${vehicle.name} (${vehicle.license_plate})` : 'Unknown';
   };
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  const getDriverName = (driverId: string) => {
+    const driver = drivers.find((d) => d.id === driverId);
+    return driver ? driver.full_name : 'Unknown';
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    try {
-      // Update rental in database
-      const { error } = await supabase
-        .from('rentals')
-        .update(formData)
-        .eq('id', selectedRental?.id);
-
-      if (error) throw error;
-
-      // Update state
-      setRentals((prev) =>
-        prev.map((rental) =>
-          rental.id === selectedRental?.id ? { ...rental, ...formData } : rental
-        )
-      );
-
-      setOpen(false);
-      showSuccessToast("Rental updated successfully");
-    } catch (error) {
-      console.error('Error updating rental:', error);
-      showErrorToast("Failed to update rental");
-    }
-  };
-
-  const handleOpenDialog = (rental: Rental) => {
-    setSelectedRental(rental);
-    setFormData({
-      id: rental.id,
-      renter_name: rental.renter_name,
-      renter_phone: rental.renter_phone,
-      destination: rental.destination,
-      vehicle_id: rental.vehicle_id,
-      driver_id: rental.driver_id,
-      start_date: rental.start_date,
-      end_date: rental.end_date,
-      payment_status: rental.payment_status,
-    });
-    setOpen(true);
-  };
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
+        <h1 className="text-2xl sm:text-3xl font-bold text-red-600">Error</h1>
+        <p className="text-sm sm:text-base text-muted-foreground mt-2">{error}</p>
+        <Button
+          onClick={() => window.location.reload()}
+          className="mt-4 w-full sm:w-auto"
+        >
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold">Rentals</h1>
-        <p className="text-muted-foreground text-sm sm:text-base">Manage your vehicle rentals</p>
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold">Rentals</h1>
+          <p className="text-muted-foreground text-sm sm:text-base">
+            View and manage all rental bookings
+          </p>
+        </div>
+        <Button asChild className="w-full sm:w-auto">
+          <Link to="/rentals/new">
+            <Plus className="mr-2 h-4 w-4" />
+            New Rental
+          </Link>
+        </Button>
       </div>
 
-      <Tabs defaultValue="all" className="space-y-4">
-        <TabsList className="flex flex-wrap">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="pending">Pending</TabsTrigger>
-          <TabsTrigger value="paid">Paid</TabsTrigger>
-          <TabsTrigger value="cancelled">Cancelled</TabsTrigger>
-        </TabsList>
-        <TabsContent value="all" className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg sm:text-xl">Rental List</CardTitle>
+        </CardHeader>
+        <CardContent>
           {isLoading ? (
-            <p>Loading rentals...</p>
-          ) : (
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {rentals.map((rental) => (
-                <Card key={rental.id} className="bg-card text-card-foreground shadow-sm">
-                  <CardHeader>
-                    <CardTitle className="text-base sm:text-lg font-semibold leading-none tracking-tight">
-                      {rental.renter_name}
-                    </CardTitle>
-                    <CardDescription>
-                      <div className="flex items-center gap-2 text-sm">
-                        <Calendar className="h-4 w-4" />
-                        {format(new Date(rental.start_date), 'MMM d, yyyy')} -{' '}
-                        {format(new Date(rental.end_date), 'MMM d, yyyy')}
-                      </div>
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-2 text-sm sm:text-base">
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      <span>{rental.destination}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      <span>{rental.driver?.full_name || 'No driver assigned'}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Car className="h-4 w-4" />
-                      <span>{rental.vehicle?.name}</span>
-                    </div>
-                    <div>
-                      <Label>Payment Status</Label>
-                      <Badge
-                        variant={
-                          rental.payment_status === 'paid'
-                            ? 'default'
-                            : rental.payment_status === 'cancelled'
-                              ? 'destructive'
-                              : 'secondary'
-                        }
-                      >
-                        {rental.payment_status}
-                      </Badge>
-                    </div>
-                    <Button onClick={() => handleOpenDialog(rental)} className="w-full sm:w-auto">
-                      View Details
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+            <div className="flex justify-center items-center h-64">
+              <div className="flex flex-col items-center gap-2">
+                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
+                <p>Loading rentals...</p>
+              </div>
             </div>
-          )}
-        </TabsContent>
-        <TabsContent value="pending">
-          {isLoading ? (
-            <p>Loading rentals...</p>
-          ) : (
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {rentals
-                .filter((rental) => rental.payment_status === 'pending')
-                .map((rental) => (
-                  <Card key={rental.id} className="bg-card text-card-foreground shadow-sm">
-                    <CardHeader>
-                      <CardTitle className="text-base sm:text-lg font-semibold leading-none tracking-tight">
-                        {rental.renter_name}
-                      </CardTitle>
-                      <CardDescription>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Calendar className="h-4 w-4" />
-                          {format(new Date(rental.start_date), 'MMM d, yyyy')} -{' '}
-                          {format(new Date(rental.end_date), 'MMM d, yyyy')}
-                        </div>
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm sm:text-base">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        <span>{rental.destination}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        <span>{rental.driver?.full_name || 'No driver assigned'}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Car className="h-4 w-4" />
-                        <span>{rental.vehicle?.name}</span>
-                      </div>
-                      <div>
-                        <Label>Payment Status</Label>
-                        <Badge
-                          variant={
+          ) : rentals.length > 0 ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableCaption>All rental bookings in the system</TableCaption>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Renter</TableHead>
+                    <TableHead>Vehicle</TableHead>
+                    <TableHead>Driver</TableHead>
+                    <TableHead>Destination</TableHead>
+                    <TableHead>Start Date</TableHead>
+                    <TableHead>End Date</TableHead>
+                    <TableHead>Payment Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {rentals.map((rental) => (
+                    <TableRow key={rental.id}>
+                      <TableCell>
+                        <div className="font-medium">{rental.renter_name}</div>
+                        <div className="text-sm text-muted-foreground">{rental.renter_phone}</div>
+                      </TableCell>
+                      <TableCell>{getVehicleName(rental.vehicle_id)}</TableCell>
+                      <TableCell>{getDriverName(rental.driver_id)}</TableCell>
+                      <TableCell>{rental.destination}</TableCell>
+                      <TableCell>{format(new Date(rental.start_date), 'PPP')}</TableCell>
+                      <TableCell>{format(new Date(rental.end_date), 'PPP')}</TableCell>
+                      <TableCell>
+                        <div
+                          className={cn(
+                            'inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold',
                             rental.payment_status === 'paid'
-                              ? 'default'
-                              : rental.payment_status === 'cancelled'
-                                ? 'destructive'
-                                : 'secondary'
-                          }
+                              ? 'bg-green-100 text-green-800'
+                              : rental.payment_status === 'pending'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-red-100 text-red-800'
+                          )}
                         >
-                          {rental.payment_status}
-                        </Badge>
-                      </div>
-                      <Button onClick={() => handleOpenDialog(rental)} className="w-full sm:w-auto">
-                        View Details
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-            </div>
-          )}
-        </TabsContent>
-        <TabsContent value="paid">
-          {isLoading ? (
-            <p>Loading rentals...</p>
-          ) : (
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {rentals
-                .filter((rental) => rental.payment_status === 'paid')
-                .map((rental) => (
-                  <Card key={rental.id} className="bg-card text-card-foreground shadow-sm">
-                    <CardHeader>
-                      <CardTitle className="text-base sm:text-lg font-semibold leading-none tracking-tight">
-                        {rental.renter_name}
-                      </CardTitle>
-                      <CardDescription>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Calendar className="h-4 w-4" />
-                          {format(new Date(rental.start_date), 'MMM d, yyyy')} -{' '}
-                          {format(new Date(rental.end_date), 'MMM d, yyyy')}
+                          {rental.payment_status.charAt(0).toUpperCase() + rental.payment_status.slice(1)}
                         </div>
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm sm:text-base">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        <span>{rental.destination}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        <span>{rental.driver?.full_name || 'No driver assigned'}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Car className="h-4 w-4" />
-                        <span>{rental.vehicle?.name}</span>
-                      </div>
-                      <div>
-                        <Label>Payment Status</Label>
-                        <Badge
-                          variant={
-                            rental.payment_status === 'paid'
-                              ? 'default'
-                              : rental.payment_status === 'cancelled'
-                                ? 'destructive'
-                                : 'secondary'
-                          }
-                        >
-                          {rental.payment_status}
-                        </Badge>
-                      </div>
-                      <Button onClick={() => handleOpenDialog(rental)} className="w-full sm:w-auto">
-                        View Details
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
-          )}
-        </TabsContent>
-        <TabsContent value="cancelled">
-          {isLoading ? (
-            <p>Loading rentals...</p>
           ) : (
-            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-              {rentals
-                .filter((rental) => rental.payment_status === 'cancelled')
-                .map((rental) => (
-                  <Card key={rental.id} className="bg-card text-card-foreground shadow-sm">
-                    <CardHeader>
-                      <CardTitle className="text-base sm:text-lg font-semibold leading-none tracking-tight">
-                        {rental.renter_name}
-                      </CardTitle>
-                      <CardDescription>
-                        <div className="flex items-center gap-2 text-sm">
-                          <Calendar className="h-4 w-4" />
-                          {format(new Date(rental.start_date), 'MMM d, yyyy')} -{' '}
-                          {format(new Date(rental.end_date), 'MMM d, yyyy')}
-                        </div>
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-2 text-sm sm:text-base">
-                      <div className="flex items-center gap-2">
-                        <MapPin className="h-4 w-4" />
-                        <span>{rental.destination}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4" />
-                        <span>{rental.driver?.full_name || 'No driver assigned'}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Car className="h-4 w-4" />
-                        <span>{rental.vehicle?.name}</span>
-                      </div>
-                      <div>
-                        <Label>Payment Status</Label>
-                        <Badge
-                          variant={
-                            rental.payment_status === 'paid'
-                              ? 'default'
-                              : rental.payment_status === 'cancelled'
-                                ? 'destructive'
-                                : 'secondary'
-                          }
-                        >
-                          {rental.payment_status}
-                        </Badge>
-                      </div>
-                      <Button onClick={() => handleOpenDialog(rental)} className="w-full sm:w-auto">
-                        View Details
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
+            <div className="flex flex-col items-center justify-center h-64">
+              <p className="text-muted-foreground text-sm sm:text-base">No rentals found.</p>
+              <Button className="mt-4 w-full sm:w-auto" asChild>
+                <Link to="/rentals/new">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create New Rental
+                </Link>
+              </Button>
             </div>
           )}
-        </TabsContent>
-      </Tabs>
-
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-full sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Rental Details</DialogTitle>
-            <DialogDescription>
-              Make changes to your rental here. Click save when you're done.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid gap-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="renter_name">Renter Name</Label>
-                  <Input
-                    id="renter_name"
-                    name="renter_name"
-                    value={formData.renter_name}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="renter_phone">Renter Phone</Label>
-                  <Input
-                    id="renter_phone"
-                    name="renter_phone"
-                    value={formData.renter_phone}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="vehicle_id">Vehicle</Label>
-                <Select
-                  value={formData.vehicle_id}
-                  onValueChange={(value) => handleSelectChange('vehicle_id', value)}
-                >
-                  <SelectTrigger id="vehicle_id">
-                    <SelectValue placeholder="Select vehicle" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {vehicles.map((vehicle) => (
-                      <SelectItem key={vehicle.id} value={vehicle.id}>
-                        {vehicle.name} - {vehicle.license_plate} ({vehicle.type})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="driver_id">Driver (Optional)</Label>
-                <Select
-                  value={formData.driver_id}
-                  onValueChange={(value) => handleSelectChange('driver_id', value)}
-                >
-                  <SelectTrigger id="driver_id">
-                    <SelectValue placeholder="Select driver" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">No driver</SelectItem>
-                    {drivers.map((driver) => (
-                      <SelectItem key={driver.id} value={driver.id}>
-                        {driver.full_name} - {driver.phone_number}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="destination">Destination</Label>
-                <Input
-                  id="destination"
-                  name="destination"
-                  value={formData.destination}
-                  onChange={handleInputChange}
-                  required
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="start_date">Start Date</Label>
-                  <Input
-                    id="start_date"
-                    name="start_date"
-                    type="date"
-                    value={formData.start_date}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="end_date">End Date</Label>
-                  <Input
-                    id="end_date"
-                    name="end_date"
-                    type="date"
-                    value={formData.end_date}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="payment_status">Payment Status</Label>
-                <Select
-                  value={formData.payment_status}
-                  onValueChange={(value) =>
-                    handleSelectChange('payment_status', value as 'pending' | 'paid' | 'cancelled')
-                  }
-                >
-                  <SelectTrigger id="payment_status">
-                    <SelectValue placeholder="Select payment status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="paid">Paid</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            <DialogFooter className="flex flex-col sm:flex-row gap-2">
-              <Button type="submit" className="w-full sm:w-auto">Save changes</Button>
-            </DialogFooter>
-          </form>
-        </DialogContent>
-      </Dialog>
+        </CardContent>
+      </Card>
     </div>
   );
 };
