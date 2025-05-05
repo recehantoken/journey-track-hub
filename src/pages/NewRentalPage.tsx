@@ -96,9 +96,9 @@ const NewRentalPage = () => {
       return;
     }
 
-    const paymentPrice = parseFloat(formData.payment_price);
-    if (isNaN(paymentPrice) || paymentPrice <= 0) {
-      showErrorToast('Payment price must be a positive number');
+    const paymentPrice = parseInt(formData.payment_price, 10);
+    if (isNaN(paymentPrice) || paymentPrice < 1) {
+      showErrorToast('Payment price must be a positive whole number');
       return;
     }
 
@@ -300,13 +300,13 @@ const NewRentalPage = () => {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="payment_price">Payment Price ($)</Label>
+                  <Label htmlFor="payment_price">Payment Price (Rp)</Label>
                   <Input
                     id="payment_price"
                     name="payment_price"
                     type="number"
-                    step="0.01"
-                    min="0.01"
+                    step="1"
+                    min="1"
                     value={formData.payment_price}
                     onChange={handleInputChange}
                     required

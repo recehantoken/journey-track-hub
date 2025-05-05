@@ -19,6 +19,14 @@ import { Driver, Rental, Vehicle } from '@/types';
 import { Link } from 'react-router-dom';
 import { showToast, showErrorToast, showSuccessToast } from '@/utils/toasts';
 
+// Create IDR formatter
+const idrFormatter = new Intl.NumberFormat('id-ID', {
+  style: 'currency',
+  currency: 'IDR',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+
 const SchedulePage = () => {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [rentals, setRentals] = useState<Rental[]>([]);
@@ -181,7 +189,7 @@ const SchedulePage = () => {
                       <TableHead>Destination</TableHead>
                       <TableHead>Start Date</TableHead>
                       <TableHead>End Date</TableHead>
-                      <TableHead>Price ($)</TableHead>
+                      <TableHead>Price (Rp)</TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -198,7 +206,7 @@ const SchedulePage = () => {
                         <TableCell>{rental.destination}</TableCell>
                         <TableCell>{format(new Date(rental.start_date), 'PPP')}</TableCell>
                         <TableCell>{format(new Date(rental.end_date), 'PPP')}</TableCell>
-                        <TableCell>{rental.payment_price.toFixed(2)}</TableCell>
+                        <TableCell>{idrFormatter.format(rental.payment_price)}</TableCell>
                         <TableCell>
                           <div className={cn(
                             "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold",

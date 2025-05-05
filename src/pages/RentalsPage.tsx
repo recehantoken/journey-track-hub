@@ -18,6 +18,14 @@ import { cn } from '@/lib/utils';
 import { Rental, Vehicle, Driver } from '@/types';
 import { showErrorToast } from '@/utils/toasts';
 
+// Create IDR formatter
+const idrFormatter = new Intl.NumberFormat('id-ID', {
+  style: 'currency',
+  currency: 'IDR',
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+
 const RentalsPage = () => {
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -143,7 +151,7 @@ const RentalsPage = () => {
                     <TableHead>Destination</TableHead>
                     <TableHead>Start Date</TableHead>
                     <TableHead>End Date</TableHead>
-                    <TableHead>Price ($)</TableHead>
+                    <TableHead>Price (Rp)</TableHead>
                     <TableHead>Payment Status</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -160,7 +168,7 @@ const RentalsPage = () => {
                       <TableCell>{rental.destination}</TableCell>
                       <TableCell>{format(new Date(rental.start_date), 'PPP')}</TableCell>
                       <TableCell>{format(new Date(rental.end_date), 'PPP')}</TableCell>
-                      <TableCell>{rental.payment_price.toFixed(2)}</TableCell>
+                      <TableCell>{idrFormatter.format(rental.payment_price)}</TableCell>
                       <TableCell>
                         <div
                           className={cn(
