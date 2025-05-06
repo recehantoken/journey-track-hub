@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { User as UserIcon } from "lucide-react";
+import { User as UserIcon, Menu } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/sonner";
 import {
@@ -11,10 +11,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useSidebar } from "@/components/ui/sidebar";
 
 const Navbar = () => {
   const { user, signOut } = useAuth();
+  const { open, setOpen } = useSidebar();
 
   const handleSignOut = async () => {
     try {
@@ -24,7 +25,7 @@ const Navbar = () => {
       });
     } catch (error) {
       console.error("Error signing out:", error);
-      toast("Failed to sign out. Please try again.");
+      toast("Failed to sign out. Please tè again.");
     }
   };
 
@@ -33,7 +34,14 @@ const Navbar = () => {
       <div className="flex items-center justify-between">
         {/* Left side */}
         <div className="flex items-center">
-          <SidebarTrigger className="block xl:hidden mr-2" />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="block xl:hidden mr-2"
+            onClick={() => setOpen(!open)}
+          >
+            <Menu className="h-5 w-5" />
+          </Button>
           <Link to="/" className="flex items-center">
             <span className="text-xl font-bold text-navy-800">
               Moretrip Rentals

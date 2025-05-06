@@ -28,7 +28,7 @@ const sidebarItems = [
   { title: "Rentals", href: "/rentals", icon: CalendarIcon },
   { title: "Tracking", href: "/tracking", icon: MapPinIcon },
   { title: "Schedule", href: "/schedule", icon: CalendarClockIcon },
-  { title: "Accounting", href: "/accounting", icon: Receipt },
+  { title: "Incomes", href: "/accounting", icon: Receipt },
   { title: "Settings", href: "/settings", icon: SettingsIcon },
 ];
 
@@ -36,6 +36,11 @@ const Sidebar = () => {
   const { user, signOut } = useAuth();
   const { open, setOpen } = useSidebar();
   const location = useLocation();
+
+  // Debug toggle state
+  useEffect(() => {
+    console.log("Sidebar open state:", open);
+  }, [open]);
 
   // Close sidebar on navigation (mobile)
   useEffect(() => {
@@ -123,7 +128,7 @@ const Sidebar = () => {
         </SheetContent>
       </Sheet>
 
-      <aside className="lg:flex hidden w-64 shrink-0 border-r bg-blue-500 flex-col transition-all">
+      <aside className="hidden lg:block w-64 shrink-0 border-r bg-blue-900 flex flex-col transition-all">
         {renderSidebarContent()}
       </aside>
     </>
