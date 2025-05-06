@@ -1,348 +1,345 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Vehicle, Driver } from '@/types';
-import { showErrorToast, showSuccessToast } from '@/utils/toasts';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/sonner";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { Tables } from "@/integrations/supabase/types";
+import { formatIDR } from "@/utils/format";
 
 const NewRentalPage = () => {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [drivers, setDrivers] = useState<Driver[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    renter_name: '',
-    renter_phone: '',
-    renter_address: '',
-    destination: '',
-    vehicle_id: '',
-    driver_id: '',
-    start_date: '',
-    end_date: '',
-    payment_price: '',
-    payment_status: 'pending' as 'pending' | 'paid' | 'cancelled',
-  });
   const navigate = useNavigate();
+  const [formData, setFormData] = useState({
+    renter_name: "",
+    renter_phone: "",
+    renter_address: "",
+    destination: "",
+    vehicle_id: "",
+    driver_id: "",
+    start_date: new Date(),
+    end_date: new Date(),
+    payment_price: "",
+    payment_status: "pending" as Tables<"rentals">["payment_status"],
+  });
+  const [vehicles, setVehicles] = useState<Tables<"vehicles">[]>([]);
+  const [drivers, setDrivers] = useState<Tables<"drivers">[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch vehicles and drivers
   useEffect(() => {
     const fetchData = async () => {
-      setIsLoading(true);
-      setError(null);
       try {
-        console.log('Fetching vehicles...');
-        const { data: vehiclesData, error: vehiclesError } = await supabase
-          .from('vehicles')
-          .select('*');
-        if (vehiclesError) {
-          console.error('Vehicles error:', vehiclesError);
-          throw vehiclesError;
-        }
-        console.log('Vehicles fetched:', vehiclesData);
+        const [vehiclesResult, driversResult] = await Promise.all([
+          supabase
+            .from("vehicles")
+            .select("*")
+            .eq("status", "available"),
+          supabase
+            .from("drivers")
+            .select("*")
+            .in("status", ["active", "on-duty"]),
+        ]);
 
-        console.log('Fetching drivers...');
-        const { data: driversData, error: driversError } = await supabase
-          .from('drivers')
-          .select('*');
-        if (driversError) {
-          console.error('Drivers error:', driversError);
-          throw driversError;
-        }
-        console.log('Drivers fetched:', driversData);
+        if (vehiclesResult.error) throw vehiclesResult.error;
+        if (driversResult.error) throw driversResult.error;
 
-        setVehicles(vehiclesData as Vehicle[] || []);
-        setDrivers(driversData as Driver[] || []);
+        setVehicles(vehiclesResult.data);
+        setDrivers(driversResult.data);
       } catch (error) {
-        console.error('Error fetching data:', error);
-        setError('Failed to load vehicles and drivers. Please try again.');
-        showErrorToast('Failed to fetch vehicles and drivers');
-      } finally {
-        setIsLoading(false);
+        console.error("Error fetching data:", error);
+        toast("Failed to load vehicles or drivers", {
+          description: "Please try again later.",
+        });
       }
     };
 
     fetchData();
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Validation
-    if (
-      !formData.renter_name ||
-      !formData.renter_phone ||
-      !formData.renter_address ||
-      !formData.destination ||
-      !formData.vehicle_id ||
-      !formData.driver_id ||
-      !formData.start_date ||
-      !formData.end_date ||
-      !formData.payment_price
-    ) {
-      showErrorToast('Please fill in all required fields');
-      return;
-    }
-
-    const paymentPrice = parseInt(formData.payment_price, 10);
-    if (isNaN(paymentPrice) || paymentPrice < 1) {
-      showErrorToast('Payment price must be a positive whole number');
-      return;
-    }
-
-    // Validate date range
-    if (new Date(formData.end_date) <= new Date(formData.start_date)) {
-      showErrorToast('End date must be after start date');
-      return;
-    }
+    setIsLoading(true);
 
     try {
-      console.log('Submitting rental:', formData);
-      const rentalData = {
-        renter_name: formData.renter_name,
-        renter_phone: formData.renter_phone,
-        renter_address: formData.renter_address,
-        destination: formData.destination,
-        vehicle_id: formData.vehicle_id,
-        driver_id: formData.driver_id,
-        start_date: formData.start_date,
-        end_date: formData.end_date,
-        payment_price: paymentPrice,
-        payment_status: formData.payment_status,
-      };
-      const { error } = await supabase.from('rentals').insert(rentalData);
+      const { data: rentalData, error: rentalError } = await supabase
+        .from("rentals")
+        .insert({
+          renter_name: formData.renter_name,
+          renter_phone: formData.renter_phone,
+          renter_address: formData.renter_address,
+          destination: formData.destination,
+          vehicle_id: formData.vehicle_id,
+          driver_id: formData.driver_id,
+          start_date: formData.start_date.toISOString(),
+          end_date: formData.end_date.toISOString(),
+          payment_price: parseFloat(formData.payment_price),
+          payment_status: formData.payment_status,
+        })
+        .select()
+        .single();
 
-      if (error) {
-        console.error('Insert error:', error);
-        throw error;
-      }
+      if (rentalError) throw rentalError;
 
-      showSuccessToast('Rental created successfully');
-      navigate('/rentals');
+      // Create invoice client-side
+      const invoiceNumber = `INV-${format(new Date(), 'yyyyMMdd')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
+      const { error: invoiceError } = await supabase
+        .from("invoices")
+        .insert({
+          rental_id: rentalData.id,
+          invoice_number: invoiceNumber,
+          customer_name: formData.renter_name,
+          customer_phone: formData.renter_phone,
+          customer_address: formData.renter_address,
+          amount: parseFloat(formData.payment_price),
+          status: formData.payment_status,
+          due_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+        });
+
+      if (invoiceError) throw invoiceError;
+
+      toast("Rental and invoice created successfully", {
+        description: `Invoice #${invoiceNumber} has been generated.`,
+      });
+      navigate("/rentals");
     } catch (error) {
-      console.error('Error creating rental:', error);
-      showErrorToast('Failed to create rental');
+      console.error("Error creating rental or invoice:", error);
+      toast("Failed to create rental or invoice", {
+        description: "Please check your input and try again.",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen px-4 sm:px-6 lg:px-8">
-        <h1 className="text-2xl sm:text-3xl font-bold text-red-600">Error</h1>
-        <p className="text-sm sm:text-base text-muted-foreground mt-2">{error}</p>
-        <Button
-          onClick={() => window.location.reload()}
-          className="mt-4 w-full sm:w-auto"
-        >
-          Retry
-        </Button>
-        <Button
-          asChild
-          variant="outline"
-          className="mt-2 w-full sm:w-auto"
-        >
-          <a href="/schedule">Back to Schedule</a>
-        </Button>
-      </div>
-    );
-  }
-
-  console.log('Rendering NewRentalPage');
-
   return (
-    <div className="space-y-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold">Create New Rental</h1>
-        <p className="text-muted-foreground text-sm sm:text-base">Add a new rental booking to the system</p>
-      </div>
-
+    <div className="max-w-2xl mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg sm:text-xl">New Rental Details</CardTitle>
+          <CardTitle>Create New Rental</CardTitle>
         </CardHeader>
         <CardContent>
-          {isLoading ? (
-            <div className="flex justify-center py-8">
-              <div className="flex flex-col items-center gap-2">
-                <div className="animate-spin w-8 h-8 border-4 border-primary border-t-transparent rounded-full"></div>
-                <p>Loading...</p>
-              </div>
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="renter_name">Renter Name</Label>
+              <Input
+                id="renter_name"
+                value={formData.renter_name}
+                onChange={(e) =>
+                  setFormData({ ...formData, renter_name: e.target.value })
+                }
+                required
+              />
             </div>
-          ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid gap-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="renter_name">Renter Name</Label>
-                    <Input
-                      id="renter_name"
-                      name="renter_name"
-                      value={formData.renter_name}
-                      onChange={handleInputChange}
-                      required
-                      className="h-10"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="renter_phone">Renter Phone</Label>
-                    <Input
-                      id="renter_phone"
-                      name="renter_phone"
-                      value={formData.renter_phone}
-                      onChange={handleInputChange}
-                      required
-                      className="h-10"
-                    />
-                  </div>
-                </div>
 
-                <div className="grid gap-2">
-                  <Label htmlFor="renter_address">Renter Address</Label>
-                  <Input
-                    id="renter_address"
-                    name="renter_address"
-                    value={formData.renter_address}
-                    onChange={handleInputChange}
-                    required
-                    className="h-10"
-                  />
-                </div>
+            <div className="space-y-2">
+              <Label htmlFor="renter_phone">Renter Phone</Label>
+              <Input
+                id="renter_phone"
+                value={formData.renter_phone}
+                onChange={(e) =>
+                  setFormData({ ...formData, renter_phone: e.target.value })
+                }
+                required
+              />
+            </div>
 
-                <div className="grid gap-2">
-                  <Label htmlFor="destination">Destination</Label>
-                  <Input
-                    id="destination"
-                    name="destination"
-                    value={formData.destination}
-                    onChange={handleInputChange}
-                    required
-                    className="h-10"
-                  />
-                </div>
+            <div className="space-y-2">
+              <Label htmlFor="renter_address">Renter Address</Label>
+              <Input
+                id="renter_address"
+                value={formData.renter_address}
+                onChange={(e) =>
+                  setFormData({ ...formData, renter_address: e.target.value })
+                }
+              />
+            </div>
 
-                <div className="grid gap-2">
-                  <Label htmlFor="vehicle_id">Vehicle</Label>
-                  <Select
-                    value={formData.vehicle_id}
-                    onValueChange={(value) => handleSelectChange('vehicle_id', value)}
-                    required
+            <div className="space-y-2">
+              <Label htmlFor="destination">Destination</Label>
+              <Input
+                id="destination"
+                value={formData.destination}
+                onChange={(e) =>
+                  setFormData({ ...formData, destination: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="vehicle_id">Vehicle</Label>
+              <Select
+                value={formData.vehicle_id}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, vehicle_id: value })
+                }
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a vehicle" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vehicles.map((vehicle) => (
+                    <SelectItem key={vehicle.id} value={vehicle.id}>
+                      {vehicle.name} ({vehicle.license_plate}) - {formatIDR(vehicle.price)}/day
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="driver_id">Driver</Label>
+              <Select
+                value={formData.driver_id}
+                onValueChange={(value) =>
+                  setFormData({ ...formData, driver_id: value })
+                }
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a driver" />
+                </SelectTrigger>
+                <SelectContent>
+                  {drivers.map((driver) => (
+                    <SelectItem key={driver.id} value={driver.id}>
+                      {driver.full_name} ({driver.phone_number})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Start Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !formData.start_date && "text-muted-foreground"
+                    )}
                   >
-                    <SelectTrigger id="vehicle_id" className="h-10">
-                      <SelectValue placeholder="Select vehicle" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {vehicles.map((vehicle) => (
-                        <SelectItem key={vehicle.id} value={vehicle.id}>
-                          {vehicle.name} - {vehicle.license_plate} ({vehicle.type})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid gap-2">
-                  <Label htmlFor="driver_id">Driver</Label>
-                  <Select
-                    value={formData.driver_id}
-                    onValueChange={(value) => handleSelectChange('driver_id', value)}
-                    required
-                  >
-                    <SelectTrigger id="driver_id" className="h-10">
-                      <SelectValue placeholder="Select driver" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {drivers.map((driver) => (
-                        <SelectItem key={driver.id} value={driver.id}>
-                          {driver.full_name} - {driver.phone_number}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="start_date">Start Date</Label>
-                    <Input
-                      id="start_date"
-                      name="start_date"
-                      type="date"
-                      value={formData.start_date}
-                      onChange={handleInputChange}
-                      required
-                      className="h-10"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="end_date">End Date</Label>
-                    <Input
-                      id="end_date"
-                      name="end_date"
-                      type="date"
-                      value={formData.end_date}
-                      onChange={handleInputChange}
-                      required
-                      className="h-10"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-2">
-                  <Label htmlFor="payment_price">Payment Price (Rp)</Label>
-                  <Input
-                    id="payment_price"
-                    name="payment_price"
-                    type="number"
-                    step="1"
-                    min="1"
-                    value={formData.payment_price}
-                    onChange={handleInputChange}
-                    required
-                    className="h-10"
-                  />
-                </div>
-
-                <div className="grid gap-2">
-                  <Label htmlFor="payment_status">Payment Status</Label>
-                  <Select
-                    value={formData.payment_status}
-                    onValueChange={(value) =>
-                      handleSelectChange('payment_status', value as 'pending' | 'paid' | 'cancelled')
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formData.start_date ? (
+                      format(formData.start_date, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={formData.start_date}
+                    onSelect={(date) =>
+                      date && setFormData({ ...formData, start_date: date })
                     }
-                    required
-                  >
-                    <SelectTrigger id="payment_status" className="h-10">
-                      <SelectValue placeholder="Select payment status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="pending">Pending</SelectItem>
-                      <SelectItem value="paid">Paid</SelectItem>
-                      <SelectItem value="cancelled">Cancelled</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
 
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Button type="submit" className="w-full sm:w-auto">Create Rental</Button>
-                <Button variant="outline" onClick={() => navigate('/rentals')} className="w-full sm:w-auto">
-                  Cancel
-                </Button>
-              </div>
-            </form>
-          )}
+            <div className="space-y-2">
+              <Label>End Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-full justify-start text-left font-normal",
+                      !formData.end_date && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {formData.end_date ? (
+                      format(formData.end_date, "PPP")
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={formData.end_date}
+                    onSelect={(date) =>
+                      date && setFormData({ ...formData, end_date: date })
+                    }
+                    initialFocus
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="payment_price">Payment Price (IDR)</Label>
+              <Input
+                id="payment_price"
+                type="number"
+                value={formData.payment_price}
+                onChange={(e) =>
+                  setFormData({ ...formData, payment_price: e.target.value })
+                }
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="payment_status">Payment Status</Label>
+              <Select
+                value={formData.payment_status}
+                onValueChange={(value) =>
+                  setFormData({
+                    ...formData,
+                    payment_status: value as Tables<"rentals">["payment_status"],
+                  })
+                }
+                required
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select payment status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="paid">Paid</SelectItem>
+                  <SelectItem value="cancelled">Cancelled</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="flex justify-end gap-4">
+              <Button
+                variant="outline"
+                onClick={() => navigate("/rentals")}
+                disabled={isLoading}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? "Creating..." : "Create Rental"}
+              </Button>
+            </div>
+          </form>
         </CardContent>
       </Card>
     </div>

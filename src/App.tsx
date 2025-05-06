@@ -15,6 +15,7 @@ import TrackingPage from "./pages/TrackingPage";
 import SchedulePage from "./pages/SchedulePage";
 import SettingsPage from "./pages/SettingsPage";
 import AccountingPage from "./pages/AccountingPage";
+import InvoicesPage from "./pages/InvoicesPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import NewRentalPage from "./pages/NewRentalPage";
@@ -69,6 +70,7 @@ const AppRoutes = () => {
       <Route path="/schedule" element={<MainLayout><ProtectedRoute><SchedulePage /></ProtectedRoute></MainLayout>} />
       <Route path="/settings" element={<MainLayout><ProtectedRoute><SettingsPage /></ProtectedRoute></MainLayout>} />
       <Route path="/accounting" element={<MainLayout><ProtectedRoute><AccountingPage /></ProtectedRoute></MainLayout>} />
+      <Route path="/invoices" element={<MainLayout><ProtectedRoute><InvoicesPage /></ProtectedRoute></MainLayout>} />
       
       {/* Catch all */}
       <Route path="*" element={<MainLayout><NotFound /></MainLayout>} />

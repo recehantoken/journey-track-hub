@@ -252,6 +252,59 @@ export type Database = {
         }
         Relationships: []
       }
+      invoices: {
+        Row: {
+          id: string
+          rental_id: string
+          invoice_number: string
+          customer_name: string
+          customer_phone: string
+          customer_address: string | null
+          amount: number
+          status: Database["public"]["Enums"]["payment_status"]
+          issued_at: string
+          due_at: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          rental_id: string
+          invoice_number: string
+          customer_name: string
+          customer_phone: string
+          customer_address?: string | null
+          amount: number
+          status?: Database["public"]["Enums"]["payment_status"]
+          issued_at?: string
+          due_at?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          rental_id?: string
+          invoice_number?: string
+          customer_name?: string
+          customer_phone?: string
+          customer_address?: string | null
+          amount?: number
+          status?: Database["public"]["Enums"]["payment_status"]
+          issued_at?: string
+          due_at?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invoices_rental_id_fkey"
+            columns: ["rental_id"]
+            isOneToOne: false
+            referencedRelation: "rentals"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -443,6 +496,22 @@ export interface Rental {
   updated_at: string | null;
   vehicle?: Vehicle;
   driver?: Driver;
+}
+
+export interface Invoice {
+  id: string;
+  rental_id: string;
+  invoice_number: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_address: string | null;
+  amount: number;
+  status: Database["public"]["Enums"]["payment_status"];
+  issued_at: string;
+  due_at: string;
+  created_at: string | null;
+  updated_at: string | null;
+  rental?: Rental;
 }
 
 export interface TrackingData {

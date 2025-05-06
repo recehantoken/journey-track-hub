@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Car, User, Calendar, MapPin, Home, Settings, DollarSign } from 'lucide-react';
+import { Car, User, Calendar, MapPin, Home, Settings, DollarSign, FileText } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   Sidebar as SidebarComponent,
@@ -135,6 +135,19 @@ const Sidebar = () => {
                   <Link to="/accounting" className="flex items-center gap-3 py-2 px-3">
                     <DollarSign className="h-5 w-5 transition-transform hover:scale-110" />
                     <span className="text-sm">Accounting</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  asChild
+                  className={isActive("/invoices")
+                    ? "bg-blue-500/30 text-white font-semibold rounded-lg"
+                    : "text-blue-100 hover:bg-blue-500/20 hover:text-white rounded-lg transition-colors"}
+                >
+                  <Link to="/invoices" className="flex items-center gap-3 py-2 px-3">
+                    <FileText className="h-5 w-5 transition-transform hover:scale-110" />
+                    <span className="text-sm">Invoices</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
