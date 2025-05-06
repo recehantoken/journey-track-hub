@@ -9,7 +9,7 @@ import { showErrorToast } from '@/utils/toasts';
 import { Rental } from '@/types';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, Legend, CartesianGrid, Line, LineChart } from 'recharts';
-import { IncomeByPeriod, MonthlyIncome } from '@/types';
+import { MonthlyIncome } from '@/types';
 import MonthlyIncomeCard from '@/components/accounting/MonthlyIncomeCard';
 import IncomeSourcesCard from '@/components/accounting/IncomeSourcesCard';
 import RecentTransactionsCard from '@/components/accounting/RecentTransactionsCard';
@@ -20,6 +20,11 @@ const AccountingPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [period, setPeriod] = useState<'week' | 'month' | 'year'>('month');
   const [monthlyIncome, setMonthlyIncome] = useState<MonthlyIncome[]>([]);
+  type IncomeByPeriod = {
+    name: string;
+    value: number;
+  };
+
   const [incomeByType, setIncomeByType] = useState<IncomeByPeriod[]>([]);
   const [totalIncome, setTotalIncome] = useState(0);
   const [paidIncome, setPaidIncome] = useState(0);
