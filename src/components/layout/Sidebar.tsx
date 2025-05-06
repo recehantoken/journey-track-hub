@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import {
   Sheet,
@@ -19,7 +20,6 @@ import {
   Receipt,
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
-import { useSidebar } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -67,7 +67,7 @@ const sidebarItems = [
 ];
 
 const Sidebar = () => {
-  const { isOpen, onOpen, onClose } = useSidebar();
+  const { open, setOpen } = useSidebar();
   const location = useLocation();
   const { user, logout } = useAuth();
   const [isLogoutLoading, setIsLogoutLoading] = useState(false);
@@ -83,10 +83,10 @@ const Sidebar = () => {
 
   return (
     <>
-      <Sheet open={isOpen} onOpenChange={onClose}>
+      <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <MenuIcon
-            onClick={onOpen}
+            onClick={() => setOpen(true)}
             className="absolute left-4 top-4 h-6 w-6 md:hidden text-muted-foreground"
           />
         </SheetTrigger>
@@ -108,7 +108,7 @@ const Sidebar = () => {
                     isActive ? "bg-secondary font-medium" : "text-muted-foreground"
                   }`
                 }
-                onClick={onClose}
+                onClick={() => setOpen(false)}
               >
                 <item.icon className="h-4 w-4" />
                 {item.title}
@@ -119,11 +119,11 @@ const Sidebar = () => {
           <div className="mt-auto mb-4 px-6">
             <div className="pb-3 flex items-center gap-3">
               <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.avatar_url || ""} alt={user?.full_name || "Profile"} />
-                <AvatarFallback>{user?.full_name?.substring(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarImage src={user?.user_metadata?.avatar_url || ""} alt={user?.user_metadata?.full_name || "Profile"} />
+                <AvatarFallback>{user?.user_metadata?.full_name?.substring(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <div className="flex flex-col">
-                <span className="text-sm font-medium">{user?.full_name}</span>
+                <span className="text-sm font-medium">{user?.user_metadata?.full_name}</span>
                 <span className="text-xs text-muted-foreground">{user?.email}</span>
               </div>
             </div>
@@ -166,11 +166,11 @@ const Sidebar = () => {
         <div className="mt-auto mb-4 px-6">
           <div className="pb-3 flex items-center gap-3">
             <Avatar className="h-8 w-8">
-              <AvatarImage src={user?.avatar_url || ""} alt={user?.full_name || "Profile"} />
-              <AvatarFallback>{user?.full_name?.substring(0, 2).toUpperCase()}</AvatarFallback>
+              <AvatarImage src={user?.user_metadata?.avatar_url || ""} alt={user?.user_metadata?.full_name || "Profile"} />
+              <AvatarFallback>{user?.user_metadata?.full_name?.substring(0, 2).toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
-              <span className="text-sm font-medium">{user?.full_name}</span>
+              <span className="text-sm font-medium">{user?.user_metadata?.full_name}</span>
               <span className="text-xs text-muted-foreground">{user?.email}</span>
             </div>
           </div>
