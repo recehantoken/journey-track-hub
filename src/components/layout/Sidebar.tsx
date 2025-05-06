@@ -134,7 +134,7 @@ const Sidebar = () => {
                 >
                   <Link to="/accounting" className="flex items-center gap-3 py-2 px-3">
                     <DollarSign className="h-5 w-5 transition-transform hover:scale-110" />
-                    <span className="text-sm">Accounting</span>
+                    <span className="text-sm">Incomes</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
