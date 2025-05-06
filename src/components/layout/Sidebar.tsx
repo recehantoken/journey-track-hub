@@ -1,189 +1,133 @@
-import { useState } from "react";
+import { Link, useLocation } from 'react-router-dom';
+import { Car, User, Calendar, MapPin, Home, Settings } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  HomeIcon,
-  CarIcon,
-  UsersIcon,
-  CalendarIcon,
-  MapPinIcon,
-  CalendarClockIcon,
-  SettingsIcon,
-  MenuIcon,
-  Receipt,
-} from "lucide-react";
-import { NavLink, useLocation } from "react-router-dom";
-import { useSidebar } from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAuth } from "@/contexts/AuthContext";
-
-const sidebarItems = [
-  {
-    title: "Dashboard",
-    href: "/",
-    icon: HomeIcon,
-  },
-  {
-    title: "Vehicles",
-    href: "/vehicles",
-    icon: CarIcon,
-  },
-  {
-    title: "Drivers",
-    href: "/drivers",
-    icon: UsersIcon,
-  },
-  {
-    title: "Rentals",
-    href: "/rentals",
-    icon: CalendarIcon,
-  },
-  {
-    title: "Tracking",
-    href: "/tracking",
-    icon: MapPinIcon,
-  },
-  {
-    title: "Schedule",
-    href: "/schedule",
-    icon: CalendarClockIcon,
-  },
-  {
-    title: "Accounting",
-    href: "/accounting",
-    icon: Receipt,
-  },
-  {
-    title: "Settings",
-    href: "/settings",
-    icon: SettingsIcon,
-  },
-];
+  Sidebar as SidebarComponent,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarTrigger
+} from '@/components/ui/sidebar';
+import { Button } from '@/components/ui/button';
+import { toast } from '@/components/ui/sonner';
 
 const Sidebar = () => {
-  const { isOpen, onOpen, onClose } = useSidebar();
   const location = useLocation();
-  const { user, logout } = useAuth();
-  const [isLogoutLoading, setIsLogoutLoading] = useState(false);
+  const { signOut } = useAuth();
+  
+  const isActive = (path: string) => {
+    return location.pathname === path;
+  };
 
-  const handleLogout = async () => {
-    setIsLogoutLoading(true);
+  const handleSignOut = async () => {
     try {
-      await logout();
-    } finally {
-      setIsLogoutLoading(false);
+      await signOut();
+      toast("You have been successfully signed out.");
+    } catch (error) {
+      console.error("Error signing out:", error);
+      toast("Failed to sign out. Please try again.");
     }
   };
 
   return (
-    <>
-      <Sheet open={isOpen} onOpenChange={onClose}>
-        <SheetTrigger asChild>
-          <MenuIcon
-            onClick={onOpen}
-            className="absolute left-4 top-4 h-6 w-6 md:hidden text-muted-foreground"
-          />
-        </SheetTrigger>
-        <SheetContent side="left" className="w-3/4 border-r p-0">
-          <SheetHeader className="pl-6 pr-4 pt-6 pb-4">
-            <SheetTitle>Moretrip Rental Hub</SheetTitle>
-            <SheetDescription>
-              Manage your rental operations efficiently.
-            </SheetDescription>
-          </SheetHeader>
-
-          <div className="py-4 text-sm">
-            {sidebarItems.map((item) => (
-              <NavLink
-                key={item.href}
-                to={item.href}
-                className={({ isActive }) =>
-                  `flex items-center gap-3 p-2 pl-6 pr-4 rounded-md hover:bg-secondary ${
-                    isActive ? "bg-secondary font-medium" : "text-muted-foreground"
-                  }`
-                }
-                onClick={onClose}
-              >
-                <item.icon className="h-4 w-4" />
-                {item.title}
-              </NavLink>
-            ))}
-          </div>
-
-          <div className="mt-auto mb-4 px-6">
-            <div className="pb-3 flex items-center gap-3">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={user?.avatar_url || ""} alt={user?.full_name || "Profile"} />
-                <AvatarFallback>{user?.full_name?.substring(0, 2).toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">{user?.full_name}</span>
-                <span className="text-xs text-muted-foreground">{user?.email}</span>
-              </div>
-            </div>
-            <button
-              onClick={handleLogout}
-              disabled={isLogoutLoading}
-              className="w-full py-2 rounded-md bg-red-500 text-white text-sm font-medium hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLogoutLoading ? "Logging out..." : "Logout"}
-            </button>
-          </div>
-        </SheetContent>
-      </Sheet>
-
-      <aside className="hidden md:block w-64 shrink-0 border-r flex flex-col">
-        <div className="pl-6 pr-4 pt-6 pb-4">
-          <h1 className="font-bold">Moretrip Rental Hub</h1>
-          <p className="text-muted-foreground text-sm">
-            Manage your rental operations efficiently.
-          </p>
-        </div>
-
-        <div className="py-4 text-sm">
-          {sidebarItems.map((item) => (
-            <NavLink
-              key={item.href}
-              to={item.href}
-              className={({ isActive }) =>
-                `flex items-center gap-3 p-2 pl-6 pr-4 rounded-md hover:bg-secondary ${
-                  isActive ? "bg-secondary font-medium" : "text-muted-foreground"
-                }`
-              }
-            >
-              <item.icon className="h-4 w-4" />
-              {item.title}
-            </NavLink>
-          ))}
-        </div>
-
-        <div className="mt-auto mb-4 px-6">
-          <div className="pb-3 flex items-center gap-3">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={user?.avatar_url || ""} alt={user?.full_name || "Profile"} />
-              <AvatarFallback>{user?.full_name?.substring(0, 2).toUpperCase()}</AvatarFallback>
-            </Avatar>
-            <div className="flex flex-col">
-              <span className="text-sm font-medium">{user?.full_name}</span>
-              <span className="text-xs text-muted-foreground">{user?.email}</span>
-            </div>
-          </div>
-          <button
-            onClick={handleLogout}
-            disabled={isLogoutLoading}
-            className="w-full py-2 rounded-md bg-red-500 text-white text-sm font-medium hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLogoutLoading ? "Logging out..." : "Logout"}
-          </button>
-        </div>
-      </aside>
-    </>
+    <SidebarComponent collapsible="offcanvas">
+      <SidebarHeader className="flex items-center justify-between px-4 h-16">
+        <Link to="/" className="flex items-center gap-2">
+          <Car className="h-6 w-6 text-primary" />
+          <span className="font-bold text-xl">Moretrip</span>
+        </Link>
+        <SidebarTrigger />
+      </SidebarHeader>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className={isActive("/") ? "bg-primary/10 text-primary" : ""}>
+                  <Link to="/">
+                    <Home className="h-5 w-5" />
+                    <span>Dashboard</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className={isActive("/vehicles") ? "bg-primary/10 text-primary" : ""}>
+                  <Link to="/vehicles">
+                    <Car className="h-5 w-5" />
+                    <span>Vehicles</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className={isActive("/drivers") ? "bg-primary/10 text-primary" : ""}>
+                  <Link to="/drivers">
+                    <User className="h-5 w-5" />
+                    <span>Drivers</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className={isActive("/rentals") ? "bg-primary/10 text-primary" : ""}>
+                  <Link to="/rentals">
+                    <Calendar className="h-5 w-5" />
+                    <span>Rentals</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className={isActive("/schedule") ? "bg-primary/10 text-primary" : ""}>
+                  <Link to="/schedule">
+                    <Calendar className="h-5 w-5" />
+                    <span>Schedule</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className={isActive("/tracking") ? "bg-primary/10 text-primary" : ""}>
+                  <Link to="/tracking">
+                    <MapPin className="h-5 w-5" />
+                    <span>GPS Tracking</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild className={isActive("/settings") ? "bg-primary/10 text-primary" : ""}>
+                  <Link to="/settings">
+                    <Settings className="h-5 w-5" />
+                    <span>Settings</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+        
+        <SidebarGroup className="mt-auto">
+          <SidebarGroupLabel>Account</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild>
+                  <Button 
+                    variant="ghost" 
+                    className="w-full flex items-center gap-3 text-red-500 justify-start"
+                    onClick={handleSignOut}
+                  >
+                    <User className="h-5 w-5" />
+                    <span>Logout</span>
+                  </Button>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </SidebarComponent>
   );
 };
 
