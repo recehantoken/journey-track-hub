@@ -1,3 +1,4 @@
+import { useState } from "react"; // Import useState
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { User as UserIcon } from "lucide-react";
@@ -11,11 +12,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { MenuIcon } from "lucide-react"; // Import MenuIcon
 
-const Navbar = () => {
+interface NavbarProps {
+  onOpenSidebar: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onOpenSidebar }) => {
   const { user, signOut } = useAuth();
-  
+
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -33,7 +38,13 @@ const Navbar = () => {
       <div className="flex items-center justify-between">
         {/* Left side */}
         <div className="flex items-center">
-          <SidebarTrigger className="block lg:hidden mr-2" />
+          <button // Replace SidebarTrigger with a button
+            onClick={onOpenSidebar}
+            className="block lg:hidden mr-2"
+            aria-label="Open Sidebar"
+          >
+            <MenuIcon className="h-6 w-6 text-gray-500" />
+          </button>
           <Link to="/" className="flex items-center">
             <span className="text-xl font-bold text-navy-800">
               Moretrip Rentals

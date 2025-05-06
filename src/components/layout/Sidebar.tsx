@@ -135,7 +135,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
   return (
     <>
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="left" className="w-3/4 border-r p-0 bg-blue-500 text-white">
+        <SheetContent side="left" className="w-3/4 border-r p-0">
           <SheetHeader className="pl-6 pr-4 pt-6 pb-4">
             <SheetTitle>Moretrip Rental Hub</SheetTitle>
             <SheetDescription>
@@ -146,7 +146,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
         </SheetContent>
       </Sheet>
 
-      <aside className="invisible md:visible md:block w-64 shrink-0 border-r flex flex-col">
+      <aside className="md:block w-64 shrink-0 border-r flex flex-col">
         {renderSidebarContent()}
       </aside>
     </>
