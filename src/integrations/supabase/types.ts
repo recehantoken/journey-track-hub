@@ -14,6 +14,7 @@ export type Database = {
           created_at: string | null
           full_name: string
           id: string
+          license_number: string
           phone_number: string
           photo_url: string | null
           status: Database["public"]["Enums"]["driver_status"]
@@ -23,6 +24,7 @@ export type Database = {
           created_at?: string | null
           full_name: string
           id?: string
+          license_number?: string
           phone_number: string
           photo_url?: string | null
           status?: Database["public"]["Enums"]["driver_status"]
@@ -32,6 +34,7 @@ export type Database = {
           created_at?: string | null
           full_name?: string
           id?: string
+          license_number?: string
           phone_number?: string
           photo_url?: string | null
           status?: Database["public"]["Enums"]["driver_status"]
@@ -200,39 +203,48 @@ export type Database = {
       }
       vehicles: {
         Row: {
+          color: string
           created_at: string | null
           current_location_lat: number | null
           current_location_lng: number | null
           id: string
           license_plate: string
           name: string
+          note: string | null
           photo_url: string | null
+          price: number
           seats: number
           status: Database["public"]["Enums"]["vehicle_status"]
           type: Database["public"]["Enums"]["vehicle_type"]
           updated_at: string | null
         }
         Insert: {
+          color?: string
           created_at?: string | null
           current_location_lat?: number | null
           current_location_lng?: number | null
           id?: string
           license_plate: string
           name: string
+          note?: string | null
           photo_url?: string | null
+          price?: number
           seats: number
           status?: Database["public"]["Enums"]["vehicle_status"]
           type: Database["public"]["Enums"]["vehicle_type"]
           updated_at?: string | null
         }
         Update: {
+          color?: string
           created_at?: string | null
           current_location_lat?: number | null
           current_location_lng?: number | null
           id?: string
           license_plate?: string
           name?: string
+          note?: string | null
           photo_url?: string | null
+          price?: number
           seats?: number
           status?: Database["public"]["Enums"]["vehicle_status"]
           type?: Database["public"]["Enums"]["vehicle_type"]

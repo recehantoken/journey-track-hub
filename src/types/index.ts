@@ -12,19 +12,16 @@ export type VehicleStatus = 'available' | 'rented' | 'service';
 export type DriverStatus = 'active' | 'on-duty' | 'off';
 export type PaymentStatus = 'paid' | 'pending' | 'cancelled';
 
-export interface Vehicle {
+export type Vehicle = {
   id: string;
   name: string;
   license_plate: string;
   type: VehicleType;
-  seats: number;
-  status: VehicleStatus;
-  photo_url?: string;
-  current_location_lat?: number;
-  current_location_lng?: number;
+  price: number;
+  color: string;
+  note?: string | null;
   created_at: string;
-  updated_at?: string;
-}
+};
 
 export interface Driver {
   id: string;

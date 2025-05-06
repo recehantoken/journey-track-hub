@@ -27,8 +27,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { Vehicle, VehicleType } from '@/types';
 import { showErrorToast, showSuccessToast } from '@/utils/toasts';
+import { formatIDR } from '../utils/format'; // Adjust the path based on the actual location of the format file
 import { format } from 'date-fns';
 import { Edit, Eye, Trash } from 'lucide-react';
 
@@ -78,6 +80,9 @@ const VehiclesPage = () => {
           name: editVehicle.name,
           license_plate: editVehicle.license_plate,
           type: editVehicle.type,
+          price: editVehicle.price,
+          color: editVehicle.color,
+          note: editVehicle.note,
         })
         .eq('id', editVehicle.id);
       if (error) throw error;
@@ -149,6 +154,9 @@ const VehiclesPage = () => {
                     <TableHead>Name</TableHead>
                     <TableHead>License Plate</TableHead>
                     <TableHead>Type</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Color</TableHead>
+                    <TableHead>Note</TableHead>
                     <TableHead>Created At</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
@@ -159,6 +167,9 @@ const VehiclesPage = () => {
                       <TableCell>{vehicle.name}</TableCell>
                       <TableCell>{vehicle.license_plate}</TableCell>
                       <TableCell>{vehicle.type}</TableCell>
+                      <TableCell>{formatIDR(vehicle.price)}</TableCell>
+                      <TableCell>{vehicle.color}</TableCell>
+                      <TableCell>{vehicle.note || 'N/A'}</TableCell>
                       <TableCell>
                         {format(new Date(vehicle.created_at), 'PPP')}
                       </TableCell>
@@ -221,6 +232,18 @@ const VehiclesPage = () => {
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right">Type</Label>
                 <span className="col-span-3">{viewVehicle.type}</span>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Price</Label>
+                <span className="col-span-3">{formatIDR(viewVehicle.price)}</span>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Color</Label>
+                <span className="col-span-3">{viewVehicle.color}</span>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label className="text-right">Note</Label>
+                <span className="col-span-3">{viewVehicle.note || 'N/A'}</span>
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label className="text-right">Created At</Label>
@@ -293,6 +316,49 @@ const VehiclesPage = () => {
                     <SelectItem value="Truck">Truck</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="price" className="text-right">
+                  Price (IDR)
+                </Label>
+                <Input
+                  id="price"
+                  type="number"
+                  value={editVehicle.price}
+                  onChange={(e) =>
+                    setEditVehicle({
+                      ...editVehicle,
+                      price: parseFloat(e.target.value) || 0,
+                    })
+                  }
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="color" className="text-right">
+                  Color
+                </Label>
+                <Input
+                  id="color"
+                  value={editVehicle.color}
+                  onChange={(e) =>
+                    setEditVehicle({ ...editVehicle, color: e.target.value })
+                  }
+                  className="col-span-3"
+                />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="note" className="text-right">
+                  Note
+                </Label>
+                <Textarea
+                  id="note"
+                  value={editVehicle.note || ''}
+                  onChange={(e) =>
+                    setEditVehicle({ ...editVehicle, note: e.target.value || null })
+                  }
+                  className="col-span-3"
+                />
               </div>
             </div>
             <DialogFooter>
