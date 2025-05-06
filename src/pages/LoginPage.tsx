@@ -55,7 +55,7 @@ const LoginPage = () => {
       className="min-h-screen flex items-center justify-center p-4 bg-cover bg-center" 
       style={{ backgroundImage: "url('/login-back.webp')" }}
     >
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-md flex flex-col justify-between min-h-[500px]">
         <div className="flex justify-center mb-4">
           <div className="bg-navy-800 p-3 rounded-full">
             <Car className="h-8 w-8 text-white" />
@@ -108,12 +108,10 @@ const LoginPage = () => {
               </div>
             </CardFooter>
           </form>
-          <div className="mt-4 text-center text-sm text-black">
+        </Card>
+        <div className="mt-4 text-center text-sm text-black">
           © {new Date().getFullYear()} Moretrip Rental Hub. All rights reserved.
         </div>
-        </Card>
-        
-
       </div>
     </div>
   );
