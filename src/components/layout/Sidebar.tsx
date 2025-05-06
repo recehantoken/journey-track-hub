@@ -67,15 +67,15 @@ const sidebarItems = [
 ];
 
 const Sidebar = () => {
-  const { open, setOpen } = useSidebar();
+  const [open, setOpen] = useState(false);
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const [isLogoutLoading, setIsLogoutLoading] = useState(false);
 
   const handleLogout = async () => {
     setIsLogoutLoading(true);
     try {
-      await logout();
+      await signOut();
     } finally {
       setIsLogoutLoading(false);
     }
