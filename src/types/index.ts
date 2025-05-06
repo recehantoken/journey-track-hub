@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   email: string;
@@ -21,6 +22,12 @@ export type Vehicle = {
   color: string;
   note?: string | null;
   created_at: string;
+  seats: number;
+  status: VehicleStatus;
+  updated_at?: string;
+  photo_url?: string | null;
+  current_location_lat?: number | null;
+  current_location_lng?: number | null;
 };
 
 export interface Driver {
@@ -45,7 +52,7 @@ export interface Rental {
   start_date: string;
   end_date: string;
   payment_price: number;
-  payment_status: string;
+  payment_status: PaymentStatus;
   created_at: string;
   updated_at?: string;
   // These are optional fields for join queries
@@ -76,4 +83,22 @@ export interface Setting {
 export interface NavbarProps {
   toggle?: () => void;
   isOpen?: boolean;
+}
+
+// Types for Accounting page
+export interface IncomeByPeriod {
+  name: string;
+  value: number;
+}
+
+export interface MonthlyIncome {
+  month: string;
+  income: number;
+  count: number;
+}
+
+export interface VehicleTypeIncome {
+  type: VehicleType;
+  income: number;
+  count: number;
 }
