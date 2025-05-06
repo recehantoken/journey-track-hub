@@ -386,3 +386,80 @@ export const Constants = {
     },
   },
 } as const
+
+// Additional types for AccountingPage
+export interface MonthlyIncome {
+  month: string;
+  income: number;
+  count: number;
+}
+
+export interface IncomeByPeriod {
+  name: string;
+  value: number;
+}
+
+export interface Vehicle {
+  id: string;
+  name: string;
+  license_plate: string;
+  type: Database["public"]["Enums"]["vehicle_type"];
+  price: number;
+  color: string;
+  note: string | null;
+  created_at: string;
+  updated_at: string | null;
+  seats: number;
+  status: Database["public"]["Enums"]["vehicle_status"];
+  current_location_lat: number | null;
+  current_location_lng: number | null;
+  photo_url: string | null;
+}
+
+export interface Driver {
+  id: string;
+  full_name: string;
+  phone_number: string;
+  license_number: string;
+  status: Database["public"]["Enums"]["driver_status"];
+  created_at: string;
+  updated_at: string | null;
+  photo_url: string | null;
+}
+
+export interface Rental {
+  id: string;
+  renter_name: string;
+  renter_phone: string;
+  renter_address: string;
+  destination: string;
+  vehicle_id: string;
+  driver_id: string;
+  start_date: string;
+  end_date: string;
+  payment_price: number;
+  payment_status: Database["public"]["Enums"]["payment_status"];
+  created_at: string;
+  updated_at: string | null;
+  vehicle?: Vehicle;
+  driver?: Driver;
+}
+
+export interface TrackingData {
+  id: string;
+  vehicle_id: string;
+  rental_id: string | null;
+  latitude: number;
+  longitude: number;
+  timestamp: string;
+}
+
+export interface Setting {
+  id: string;
+  key: string;
+  value: string | null;
+  category: string;
+  description: string | null;
+  created_at: string | null;
+  updated_at: string | null;
+}
