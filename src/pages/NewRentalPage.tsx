@@ -97,30 +97,13 @@ const NewRentalPage = () => {
 
       if (rentalError) throw rentalError;
 
-      // Create invoice client-side
-      const invoiceNumber = `INV-${format(new Date(), 'yyyyMMdd')}-${Math.floor(Math.random() * 10000).toString().padStart(4, '0')}`;
-      const { error: invoiceError } = await supabase
-        .from("invoices")
-        .insert({
-          rental_id: rentalData.id,
-          invoice_number: invoiceNumber,
-          customer_name: formData.renter_name,
-          customer_phone: formData.renter_phone,
-          customer_address: formData.renter_address,
-          amount: parseFloat(formData.payment_price),
-          status: formData.payment_status,
-          due_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
-        });
-
-      if (invoiceError) throw invoiceError;
-
-      toast("Rental and invoice created successfully", {
-        description: `Invoice #${invoiceNumber} has been generated.`,
+      toast("Rental created successfully", {
+        description: "An invoice has been generated for this rental.",
       });
       navigate("/rentals");
     } catch (error) {
-      console.error("Error creating rental or invoice:", error);
-      toast("Failed to create rental or invoice", {
+      console.error("Error creating rental:", error);
+      toast("Failed to create rental", {
         description: "Please check your input and try again.",
       });
     } finally {
