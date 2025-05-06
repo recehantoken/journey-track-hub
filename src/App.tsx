@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -5,9 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import MainLayout from "./components/layout/MainLayout";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import React, { useState } from "react";
-import Navbar from "./components/layout/Navbar";
-import Sidebar from "./components/layout/Sidebar";
 
 // Pages
 import Index from "./pages/Index";
@@ -80,15 +78,11 @@ const AppRoutes = () => {
 };
 
 const App = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <AuthProvider>
           <BrowserRouter>
-            <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-            <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
             <AppRoutes />
           </BrowserRouter>
           <Toaster />
