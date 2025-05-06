@@ -35,79 +35,119 @@ const Sidebar = () => {
   };
 
   return (
-    <SidebarComponent collapsible="offcanvas">
-      <SidebarHeader className="flex items-center justify-between px-4 h-16">
+    <SidebarComponent collapsible="offcanvas" className="bg-gradient-to-b from-blue-600 to-blue-800 text-white shadow-lg">
+      <SidebarHeader className="flex items-center justify-between px-4 h-16 border-b border-blue-500/20">
         <Link to="/" className="flex items-center gap-2">
-          <Car className="h-6 w-6 text-primary" />
-          <span className="font-bold text-xl">Moretrip</span>
+          <Car className="h-6 w-6 text-white transition-transform hover:scale-110" />
+          <span className="font-bold text-xl tracking-tight">Moretrip</span>
         </Link>
-        <SidebarTrigger />
+        <SidebarTrigger className="text-white hover:bg-blue-500/50 rounded-md p-1" />
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="p-2">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild className={isActive("/") ? "bg-primary/10 text-primary" : ""}>
-                  <Link to="/">
-                    <Home className="h-5 w-5" />
-                    <span>Dashboard</span>
+                <SidebarMenuButton
+                  asChild
+                  className={isActive("/")
+                    ? "bg-blue-500/30 text-white font-semibold rounded-lg"
+                    : "text-blue-100 hover:bg-blue-500/20 hover:text-white rounded-lg transition-colors"}
+                >
+                  <Link to="/" className="flex items-center gap-3 py-2 px-3">
+                    <Home className="h-5 w-5 transition-transform hover:scale-110" />
+                    <span className="text-sm">Dashboard</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild className={isActive("/vehicles") ? "bg-primary/10 text-primary" : ""}>
-                  <Link to="/vehicles">
-                    <Car className="h-5 w-5" />
-                    <span>Vehicles</span>
+                <SidebarMenuButton
+                  asChild
+                  className={isActive("/vehicles")
+                    ? "bg-blue-500/30 text-white font-semibold rounded-lg"
+                    : "text-blue-100 hover:bg-blue-500/20 hover:text-white rounded-lg transition-colors"}
+                >
+                  <Link to="/vehicles" className="flex items-center gap-3 py-2 px-3">
+                    <Car className="h-5 w-5 transition-transform hover:scale-110" />
+                    <span className="text-sm">Vehicles</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild className={isActive("/drivers") ? "bg-primary/10 text-primary" : ""}>
-                  <Link to="/drivers">
-                    <User className="h-5 w-5" />
-                    <span>Drivers</span>
+                <SidebarMenuButton
+                  asChild
+                  className={isActive("/drivers")
+                    ? "bg-blue-500/30 text-white font-semibold rounded-lg"
+                    : "text-blue-100 hover:bg-blue-500/20 hover:text-white rounded-lg transition-colors"}
+                >
+                  <Link to="/drivers" className="flex items-center gap-3 py-2 px-3">
+                    <User className="h-5 w-5 transition-transform hover:scale-110" />
+                    <span className="text-sm">Drivers</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild className={isActive("/rentals") ? "bg-primary/10 text-primary" : ""}>
-                  <Link to="/rentals">
-                    <Calendar className="h-5 w-5" />
-                    <span>Rentals</span>
+                <SidebarMenuButton
+                  asChild
+                  className={isActive("/rentals")
+                    ? "bg-blue-500/30 text-white font-semibold rounded-lg"
+                    : "text-blue-100 hover:bg-blue-500/20 hover:text-white rounded-lg transition-colors"}
+                >
+                  <Link to="/rentals" className="flex items-center gap-3 py-2 px-3">
+                    <Calendar className="h-5 w-5 transition-transform hover:scale-110" />
+                    <span className="text-sm">Rentals</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild className={isActive("/schedule") ? "bg-primary/10 text-primary" : ""}>
-                  <Link to="/schedule">
-                    <Calendar className="h-5 w-5" />
-                    <span>Schedule</span>
+                <SidebarMenuButton
+                  asChild
+                  className={isActive("/schedule")
+                    ? "bg-blue-500/30 text-white font-semibold rounded-lg"
+                    : "text-blue-100 hover:bg-blue-500/20 hover:text-white rounded-lg transition-colors"}
+                >
+                  <Link to="/schedule" className="flex items-center gap-3 py-2 px-3">
+                    <Calendar className="h-5 w-5 transition-transform hover:scale-110" />
+                    <span className="text-sm">Schedule</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild className={isActive("/tracking") ? "bg-primary/10 text-primary" : ""}>
-                  <Link to="/tracking">
-                    <MapPin className="h-5 w-5" />
-                    <span>GPS Tracking</span>
+                <SidebarMenuButton
+                  asChild
+                  className={isActive("/tracking")
+                    ? "bg-blue-500/30 text-white font-semibold rounded-lg"
+                    : "text-blue-100 hover:bg-blue-500/20 hover:text-white rounded-lg transition-colors"}
+                >
+                  <Link to="/tracking" className="flex items-center gap-3 py-2 px-3">
+                    <MapPin className="h-5 w-5 transition-transform hover:scale-110" />
+                    <span className="text-sm">GPS Tracking</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild className={isActive("/accounting") ? "bg-primary/10 text-primary" : ""}>
-                  <Link to="/accounting">
-                    <DollarSign className="h-5 w-5" />
-                    <span>Accounting</span>
+                <SidebarMenuButton
+                  asChild
+                  className={isActive("/accounting")
+                    ? "bg-blue-500/30 text-white font-semibold rounded-lg"
+                    : "text-blue-100 hover:bg-blue-500/20 hover:text-white rounded-lg transition-colors"}
+                >
+                  <Link to="/accounting" className="flex items-center gap-3 py-2 px-3">
+                    <DollarSign className="h-5 w-5 transition-transform hover:scale-110" />
+                    <span className="text-sm">Accounting</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild className={isActive("/settings") ? "bg-primary/10 text-primary" : ""}>
-                  <Link to="/settings">
-                    <Settings className="h-5 w-5" />
-                    <span>Settings</span>
+                <SidebarMenuButton
+                  asChild
+                  className={isActive("/settings")
+                    ? "bg-blue-500/30 text-white font-semibold rounded-lg"
+                    : "text-blue-100 hover:bg-blue-500/20 hover:text-white rounded-lg transition-colors"}
+                >
+                  <Link to="/settings" className="flex items-center gap-3 py-2 px-3">
+                    <Settings className="h-5 w-5 transition-transform hover:scale-110" />
+                    <span className="text-sm">Settings</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -115,19 +155,19 @@ const Sidebar = () => {
           </SidebarGroupContent>
         </SidebarGroup>
         
-        <SidebarGroup className="mt-auto">
-          <SidebarGroupLabel>Account</SidebarGroupLabel>
+        <SidebarGroup className="mt-auto border-t border-blue-500/20 pt-2">
+          <SidebarGroupLabel className="text-blue-200 text-xs px-3">Account</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <Button 
                     variant="ghost" 
-                    className="w-full flex items-center gap-3 text-red-500 justify-start"
+                    className="w-full flex items-center gap-3 text-red-300 hover:text-red-100 hover:bg-red-500/20 justify-start rounded-lg py-2 px-3 transition-colors"
                     onClick={handleSignOut}
                   >
-                    <User className="h-5 w-5" />
-                    <span>Logout</span>
+                    <User className="h-5 w-5 transition-transform hover:scale-110" />
+                    <span className="text-sm">Logout</span>
                   </Button>
                 </SidebarMenuButton>
               </SidebarMenuItem>
