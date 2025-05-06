@@ -15,7 +15,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 
 const Navbar = () => {
   const { user, signOut } = useAuth();
-  
+
   const handleSignOut = async () => {
     try {
       await signOut();
@@ -33,7 +33,7 @@ const Navbar = () => {
       <div className="flex items-center justify-between">
         {/* Left side */}
         <div className="flex items-center">
-          <SidebarTrigger className="block lg:hidden mr-2" />
+          <SidebarTrigger className="block xl:hidden mr-2" />
           <Link to="/" className="flex items-center">
             <span className="text-xl font-bold text-navy-800">
               Moretrip Rentals
