@@ -1,6 +1,6 @@
-
 import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
+import { SidebarProvider } from '@/components/ui/sidebar';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import { Toaster } from '@/components/ui/sonner';
@@ -23,16 +23,18 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   }
 
   return (
-    <div className="min-h-screen flex w-full bg-background">
-      <Sidebar />
-      <div className="flex-1">
-        <Navbar />
-        <main className="p-4 md:p-6 max-w-7xl mx-auto">
-          {children}
-        </main>
+    <SidebarProvider>
+      <div className="min-h-screen flex w-full bg-background">
+        <Sidebar />
+        <div className="flex-1">
+          <Navbar />
+          <main className="p-4 md:p-6 max-w-7xl mx-auto">
+            {children}
+          </main>
+        </div>
+        <Toaster />
       </div>
-      <Toaster />
-    </div>
+    </SidebarProvider>
   );
 };
 
