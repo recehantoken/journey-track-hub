@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { User as UserIcon, Menu } from "lucide-react";
@@ -16,6 +17,18 @@ import { useSidebar } from "@/components/ui/sidebar";
 const Navbar = () => {
   const { user, signOut } = useAuth();
   const { open, setOpen } = useSidebar();
+  const [localOpen, setLocalOpen] = useState(open);
+
+  // Sync localOpen with open
+  useEffect(() => {
+    setLocalOpen(open);
+  }, [open]);
+
+  const handleToggle = () => {
+    console.log("Toggle clicked, current open:", open, "new state:", !open);
+    setLocalOpen(!open);
+    setOpen(!open);
+  };
 
   const handleSignOut = async () => {
     try {
@@ -25,7 +38,7 @@ const Navbar = () => {
       });
     } catch (error) {
       console.error("Error signing out:", error);
-      toast("Failed to sign out. Please tè again.");
+      toast("Failed to sign out. Please try again.");
     }
   };
 
@@ -38,7 +51,7 @@ const Navbar = () => {
             variant="ghost"
             size="icon"
             className="block xl:hidden mr-2"
-            onClick={() => setOpen(!open)}
+            onClick={handleToggle}
           >
             <Menu className="h-5 w-5" />
           </Button>

@@ -28,7 +28,7 @@ const sidebarItems = [
   { title: "Rentals", href: "/rentals", icon: CalendarIcon },
   { title: "Tracking", href: "/tracking", icon: MapPinIcon },
   { title: "Schedule", href: "/schedule", icon: CalendarClockIcon },
-  { title: "Incomes", href: "/accounting", icon: Receipt },
+  { title: "Accounting", href: "/accounting", icon: Receipt },
   { title: "Settings", href: "/settings", icon: SettingsIcon },
 ];
 
@@ -116,7 +116,7 @@ const Sidebar = () => {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
           side="left"
-          className="w-[280px] max-w-[90vw] border-r p-0 bg-blue-500"
+          className="w-[280px] max-w-[90vw] border-r p-0 bg-blue-500 z-[100]"
         >
           <SheetHeader className="pl-6 pr-4 pt-6 pb-4">
             <SheetTitle className="text-white">Moretrip Rental Hub</SheetTitle>
@@ -128,7 +128,7 @@ const Sidebar = () => {
         </SheetContent>
       </Sheet>
 
-      <aside className="hidden lg:block w-64 shrink-0 border-r bg-blue-900 flex flex-col transition-all">
+      <aside className="max-lg:hidden lg:block w-64 shrink-0 border-r bg-blue-500 flex flex-col transition-all">
         {renderSidebarContent()}
       </aside>
     </>
