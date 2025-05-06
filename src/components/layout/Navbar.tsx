@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { User as UserIcon } from "lucide-react";
+import { User as UserIcon, Menu } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/sonner";
 import {
@@ -33,7 +33,9 @@ const Navbar = () => {
       <div className="flex items-center justify-between">
         {/* Left side */}
         <div className="flex items-center">
-          <SidebarTrigger className="block lg:hidden mr-2" />
+          <SidebarTrigger className="flex lg:hidden mr-3 p-2 text-gray-600 hover:bg-blue-100 hover:text-blue-800 rounded-md transition-colors">
+            <Menu className="h-6 w-6" />
+          </SidebarTrigger>
           <Link to="/" className="flex items-center">
             <span className="text-xl font-bold text-navy-800">
               Moretrip Rentals
@@ -46,8 +48,8 @@ const Navbar = () => {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full">
-                  <UserIcon className="h-5 w-5" />
+                <Button variant="ghost" size="icon" className="rounded-full hover:bg-blue-100">
+                  <UserIcon className="h-5 w-5 text-gray-600" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
