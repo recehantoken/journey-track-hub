@@ -25,9 +25,16 @@ const Navbar = () => {
   }, [open]);
 
   const handleToggle = () => {
-    console.log("Toggle clicked, current open:", open, "new state:", !open);
-    setLocalOpen(!open);
-    setOpen(!open);
+    try {
+      console.log("Toggle clicked, current open:", open, "new state:", !open);
+      setLocalOpen(!open);
+      setOpen(!open);
+    } catch (error) {
+      console.error("Toggle error:", error);
+      // Fallback toggle
+      setLocalOpen(!localOpen);
+      setOpen(!localOpen);
+    }
   };
 
   const handleSignOut = async () => {

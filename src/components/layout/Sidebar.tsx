@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, Component, ErrorInfo } from "react";
 import {
   Sheet,
   SheetContent,
@@ -32,12 +32,42 @@ const sidebarItems = [
   { title: "Settings", href: "/settings", icon: SettingsIcon },
 ];
 
+interface SidebarErrorBoundaryState {
+  hasError: boolean;
+}
+
+interface SidebarErrorBoundaryProps {
+  children: React.ReactNode;
+}
+
+class SidebarErrorBoundary extends Component<SidebarErrorBoundaryProps, SidebarErrorBoundaryState> {
+  state: SidebarErrorBoundaryState = { hasError: false };
+
+  static getDerivedStateFromError() {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error("Sidebar error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <div className="p-4 text-red-600">Sidebar failed to load.</div>;
+    }
+    return this.props.children;
+  }
+}
+
 const Sidebar = () => {
   const { user, signOut } = useAuth();
   const { open, setOpen } = useSidebar();
   const location = useLocation();
 
-  // Debug toggle state
+  // Debug useSidebar and toggle state
+  useEffect(() => {
+    console.log("useSidebar initialized, open:", open);
+  }, []);
   useEffect(() => {
     console.log("Sidebar open state:", open);
   }, [open]);
@@ -112,11 +142,11 @@ const Sidebar = () => {
   );
 
   return (
-    <>
+    <SidebarErrorBoundary>
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetContent
           side="left"
-          className="w-[280px] max-w-[90vw] border-r p-0 bg-blue-500 z-[100]"
+          className="w-[280px] max-w-[90vw] border-r p-0 bg-blue-500 z-[200]"
         >
           <SheetHeader className="pl-6 pr-4 pt-6 pb-4">
             <SheetTitle className="text-white">Moretrip Rental Hub</SheetTitle>
@@ -131,7 +161,7 @@ const Sidebar = () => {
       <aside className="max-lg:hidden lg:block w-64 shrink-0 border-r bg-blue-500 flex flex-col transition-all">
         {renderSidebarContent()}
       </aside>
-    </>
+    </SidebarErrorBoundary>
   );
 };
 
