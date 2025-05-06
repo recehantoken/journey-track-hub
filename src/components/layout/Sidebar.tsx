@@ -146,7 +146,7 @@ const Sidebar: React.FC<SidebarProps> = ({ open, setOpen }) => {
         </SheetContent>
       </Sheet>
 
-      <aside className="md:block w-64 shrink-0 border-r flex flex-col">
+      <aside className="hidden md:block w-64 shrink-0 border-r flex flex-col">
         {renderSidebarContent()}
       </aside>
     </>
