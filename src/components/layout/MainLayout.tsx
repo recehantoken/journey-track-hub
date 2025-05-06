@@ -1,4 +1,5 @@
-import { ReactNode, useEffect } from 'react';
+
+import { ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import Sidebar from './Sidebar';
@@ -12,12 +13,7 @@ interface MainLayoutProps {
 const MainLayout = ({ children }: MainLayoutProps) => {
   const location = useLocation();
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
-
-  // Debug SidebarProvider
-  useEffect(() => {
-    console.log("SidebarProvider initialized, location:", location.pathname);
-  }, [location]);
-
+  
   if (isAuthPage) {
     return (
       <div className="min-h-screen bg-background">

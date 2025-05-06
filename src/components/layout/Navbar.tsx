@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react"; // Import useState
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { User as UserIcon, Menu } from "lucide-react";
+import { User as UserIcon } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/components/ui/sonner";
 import {
@@ -12,30 +12,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSidebar } from "@/components/ui/sidebar";
+import { MenuIcon } from "lucide-react"; // Import MenuIcon
 
-const Navbar = () => {
+interface NavbarProps {
+  onOpenSidebar: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onOpenSidebar }) => {
   const { user, signOut } = useAuth();
-  const { open, setOpen } = useSidebar();
-  const [localOpen, setLocalOpen] = useState(open);
-
-  // Sync localOpen with open
-  useEffect(() => {
-    setLocalOpen(open);
-  }, [open]);
-
-  const handleToggle = () => {
-    try {
-      console.log("Toggle clicked, current open:", open, "new state:", !open);
-      setLocalOpen(!open);
-      setOpen(!open);
-    } catch (error) {
-      console.error("Toggle error:", error);
-      // Fallback toggle
-      setLocalOpen(!localOpen);
-      setOpen(!localOpen);
-    }
-  };
 
   const handleSignOut = async () => {
     try {
@@ -54,14 +38,13 @@ const Navbar = () => {
       <div className="flex items-center justify-between">
         {/* Left side */}
         <div className="flex items-center">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="block xl:hidden mr-2"
-            onClick={handleToggle}
+          <button // Replace SidebarTrigger with a button
+            onClick={onOpenSidebar}
+            className="block lg:hidden mr-2"
+            aria-label="Open Sidebar"
           >
-            <Menu className="h-5 w-5" />
-          </Button>
+            <MenuIcon className="h-6 w-6 text-gray-500" />
+          </button>
           <Link to="/" className="flex items-center">
             <span className="text-xl font-bold text-navy-800">
               Moretrip Rentals

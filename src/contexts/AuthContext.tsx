@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { User } from '@supabase/supabase-js';
@@ -24,15 +25,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Get current session on load
     const getSession = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) {
-          console.error('Supabase getSession error:', error.message);
-          return;
-        }
+        const { data: { session } } = await supabase.auth.getSession();
         setUser(session?.user || null);
-        console.log('AuthContext: Session loaded, user:', session?.user?.id || 'none');
       } catch (error) {
-        console.error('AuthContext: Unexpected error getting session:', error);
+        console.error('Error getting session:', error);
       } finally {
         setLoading(false);
       }
@@ -42,10 +38,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      (_, session) => {
         setUser(session?.user || null);
         setLoading(false);
-        console.log('AuthContext: Auth state changed:', event, 'user:', session?.user?.id || 'none');
       }
     );
 
@@ -56,15 +51,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const signOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('Supabase signOut error:', error.message);
-        return;
-      }
+      await supabase.auth.signOut();
       setUser(null);
-      console.log('AuthContext: Signed out successfully');
     } catch (error) {
-      console.error('AuthContext: Unexpected error signing out:', error);
+      console.error('Error signing out:', error);
     }
   };
 
